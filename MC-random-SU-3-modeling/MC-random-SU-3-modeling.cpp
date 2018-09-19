@@ -1,4 +1,6 @@
 #include "pch.h"
+
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <emmintrin.h>
@@ -10,6 +12,8 @@
 #include <tmmintrin.h>
 #include <tuple>
 
+#include "mt64.h"
+
 static const int16_t n = 8;
 
 using namespace std;
@@ -20,24 +24,7 @@ mt19937_64 gen(rd());
 uniform_int_distribution<uint64_t> dist(0, numeric_limits<uint64_t>::max());
 auto random = bind(dist, gen);
 
-uniform_int_distribution<uint16_t> dist2(0, numeric_limits<uint16_t>::max());
-auto random2 = bind(dist2, gen);
-
-struct step_params_t {
-	uint8_t eps;
-	uint16_t m;
-};
-
-struct step_params16_t {
-	uint8_t eps;
-	uint8_t m;
-};
-
-void step_shuffle(array<uint8_t, n> &a, const uint8_t eps, const int16_t m) {
-	/*if (m + 1 >= n) {
-		throw "M is out of bounds of A";
-	}*/
-
+/*void step_shuffle(array<uint8_t, n> &a, const uint8_t eps, const int16_t m) {
 	// 16 bytes in reverse order
 	__m128i shuffle_reg = _mm_set_epi8(6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, a[m + 1], a[m]);
 	// 128 — zero
@@ -46,74 +33,65 @@ void step_shuffle(array<uint8_t, n> &a, const uint8_t eps, const int16_t m) {
 
 	a[m]     = _mm_extract_epi8(shuffle_reg, 0);
 	a[m + 1] = _mm_extract_epi8(shuffle_reg, 1);
-}
+}*/
 
-void step(array<uint8_t, n> &a, const bool eps, const int16_t m) {
-	/*if (m + 1 >= n) {
-		throw "M is out of bounds of A";
-	}*/
+void step(array<uint8_t, n> &a, const int16_t eps_m) {
+	int16_t m = abs(eps_m);
 
-	if (eps == 0 && a[m] == 0 && a[m + 1] == 1) {
+	if (eps_m >= 0 && a[m] == 0 && a[m + 1] == 1) {
 		a[m] = 1;
 		a[m + 1] = 0;
 	}
 
-	if (eps == 1 && a[m] == 1 && a[m + 1] == 0) {
+	if (eps_m < 0 && a[m] == 1 && a[m + 1] == 0) {
 		a[m] = 0;
 		a[m + 1] = 1;
 	}
 }
 
-array<step_params_t, 4> generate_step_params() {
-	array<step_params_t, 4> output;
-	auto r = random();
-	for (int i = 0; i < 4; i++) {
-		uint16_t m = static_cast<uint16_t>((r >> (64 - (3 - i) * 16)) & 0xFFFF);
-		output[i].eps = static_cast<uint8_t>(m >> 15);
-		output[i].m = m & 0b0111111111111111;
-	}
-	return output;
-}
-
-tuple<uint8_t, uint16_t> generate_step_params_ref() {
-	return make_tuple(!!random2(), random2());
+tuple<int16_t, int16_t, int16_t, int16_t> generate_eps_m() {
+	uint64_t r = genrand64_int64();
+	return make_tuple(static_cast<int16_t>(r >> 48),
+		static_cast<int16_t>((r >> 32) & 65535),
+		static_cast<int16_t>((r >> 16) & 65535),
+		static_cast<int16_t>(r & 65535));
 }
 
 int main()
 {
-	random_device rd;
+	init_genrand64(rd());
 	bool eps = rd();
+	uniform_int_distribution<int16_t> d_signed(-6, 6);
+	auto random_signed = bind(d_signed, gen);
+
+	array<int16_t, 100> eps_ms;
+	generate(eps_ms.begin(), eps_ms.end(), random_signed);
+
+	uniform_int_distribution<int16_t> dist16(numeric_limits<int16_t>::min(), numeric_limits<int16_t>::max());
+	auto random16 = bind(dist16, gen);
+	
 	array<uint8_t, n> a = { !rd(), !rd(), !rd(), !rd(), !rd(), !rd(), !rd() };
 
-	/*cout << "if" << endl;
-	for (int j = 0; j < 10; j++) {
-		auto start = system_clock::now();
-		for (int i = 0; i < 1000000000; i++)
-			step(a, eps, eps);
-		auto end = system_clock::now();
-		cout << "Time elapsed: " << duration_cast<milliseconds>(end - start).count() << " ms" << endl;
-	}*/
+	tuple<int16_t, int16_t, int16_t, int16_t> b;
 
-	array<step_params_t, 4> b;
-	tuple<uint8_t, uint16_t> c;
-
-	cout << "generate_step_params()" << endl;
-	for (int j = 0; j < 10; j++) {
-		auto start = system_clock::now();
-		for (int i = 0; i < 25000000; i++)
-			b = generate_step_params();
-		auto end = system_clock::now();
-		cout << "Time elapsed: " << duration_cast<milliseconds>(end - start).count() << " ms" << endl;
-	}
-
-	cout << "generate_step_params_ref()" << endl;
+	/*cout << "step single argument" << endl;
 	for (int j = 0; j < 10; j++) {
 		auto start = system_clock::now();
 		for (int i = 0; i < 100000000; i++)
-			c = generate_step_params_ref();
+			step(a, eps_ms[j]);
+		auto end = system_clock::now();
+		cout << "eps_m: " << eps_ms[j] << endl;
+		cout << "Time elapsed: " << duration_cast<milliseconds>(end - start).count() << " ms" << endl;
+	}*/
+
+	/*cout << "64-bit random genrand" << endl;
+	for (int j = 0; j < 10; j++) {
+		auto start = system_clock::now();
+		for (int i = 0; i < 25000000; i++)
+			b = generate_eps_m();
 		auto end = system_clock::now();
 		cout << "Time elapsed: " << duration_cast<milliseconds>(end - start).count() << " ms" << endl;
-	}
+	}*/
 
 	system("pause");
 	return 0;
