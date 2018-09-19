@@ -3,15 +3,16 @@
 #include <chrono>
 #include <emmintrin.h>
 #include <iostream>
+#include <random>
 #include <smmintrin.h>
 #include <tmmintrin.h>
 
 using namespace std;
 using namespace chrono;
 
-static const int64_t n = 8;
+static const int16_t n = 8;
 
-void step(array<uint8_t, n> &a, const uint8_t eps, const int64_t m) {
+void step_shuffle(array<uint8_t, n> &a, const uint8_t eps, const int16_t m) {
 	/*if (m + 1 >= n) {
 		throw "M is out of bounds of A";
 	}*/
@@ -26,7 +27,7 @@ void step(array<uint8_t, n> &a, const uint8_t eps, const int64_t m) {
 	a[m + 1] = _mm_extract_epi8(shuffle_reg, 1);
 }
 
-void step_if(array<uint8_t, n> &a, const uint8_t eps, const int64_t m) {
+void step(array<uint8_t, n> &a, const bool eps, const int16_t m) {
 	/*if (m + 1 >= n) {
 		throw "M is out of bounds of A";
 	}*/
@@ -44,22 +45,15 @@ void step_if(array<uint8_t, n> &a, const uint8_t eps, const int64_t m) {
 
 int main()
 {
-	array<uint8_t, n> a = { 0, 1, 0, 0, 0, 1, 0};
-
-	cout << "shuffle" << endl;
-	for (int j = 0; j < 10; j++) {
-		auto start = system_clock::now();
-		for (int i = 0; i < 100000000; i++)
-			step(a, 0, 0);
-		auto end = system_clock::now();
-		cout << "Time elapsed: " << duration_cast<milliseconds>(end - start).count() << " ms" << endl;
-	}
+	random_device rd;
+	bool eps = rd();
+	array<uint8_t, n> a = { !rd(), !rd(), !rd(), !rd(), !rd(), !rd(), !rd() };
 
 	cout << "if" << endl;
 	for (int j = 0; j < 10; j++) {
 		auto start = system_clock::now();
-		for (int i = 0; i < 100000000; i++)
-			step_if(a, 0, 0);
+		for (int i = 0; i < 1000000000; i++)
+			step(a, eps, eps);
 		auto end = system_clock::now();
 		cout << "Time elapsed: " << duration_cast<milliseconds>(end - start).count() << " ms" << endl;
 	}
