@@ -15,7 +15,8 @@
 #include "mt64.h"
 
 static const int16_t n = 8;
-const static uint16_t tries = 100;
+const static uint16_t tries = 200;
+const static uint64_t number_of_repeats = 100000000;
 
 using namespace std;
 using namespace chrono;
@@ -50,17 +51,15 @@ void step(array<uint8_t, n> &a, const int16_t eps_m) {
 	}
 }
 
-void step_2(array<uint8_t, n> &a, const int16_t eps_m) {
+void step_2(array<uint8_t, n> &a, const int16_t eps_m)
+{
+	int16_t m = abs(eps_m);
 
-	if (eps_m >= 0 && a[eps_m] == 0 && a[eps_m + 1] == 1) {
-		a[eps_m] = 1;
-		a[eps_m + 1] = 0;
-	}
+	if (eps_m >= 0 && a[m] == 0 && a[m + 1] == 1)
+		swap(a[m], a[m + 1]);
 
-	if (eps_m < 0 && a[-eps_m] == 1 && a[-eps_m + 1] == 0) {
-		a[-eps_m] = 0;
-		a[-eps_m + 1] = 1;
-	}
+	if (eps_m < 0 && a[m] == 1 && a[m + 1] == 0)
+		swap(a[m], a[m + 1]);
 }
 
 tuple<int16_t, int16_t, int16_t, int16_t> generate_eps_m() {
@@ -84,7 +83,7 @@ int main()
 	uniform_int_distribution<int16_t> dist16(numeric_limits<int16_t>::min(), numeric_limits<int16_t>::max());
 	auto random16 = bind(dist16, gen);
 	
-	array<uint8_t, n> a = { !rd(), !rd(), !rd(), !rd(), !rd(), !rd(), !rd() };
+	array<uint8_t, n> a = {0, 1, 0, 1, 0, 0, 1, 1};//{ !rd(), !rd(), !rd(), !rd(), !rd(), !rd(), !rd() };
 
 	tuple<int16_t, int16_t, int16_t, int16_t> b;
 
@@ -92,33 +91,33 @@ int main()
 	int duration[tries];
 	int total_duration = 0;
 
-	cout << "step single argument 2" << endl;
-	total_duration = 0;
-	for (int j = 0; j < tries; j++) {
-		auto start = system_clock::now();
-		for (int i = 0; i < 100000000; i++)
-			step_2(a, eps_ms[j]);
-		auto end = system_clock::now();
-		duration[j] = duration_cast<milliseconds>(end - start).count();
-		total_duration += duration[j];
-		cout << "eps_m: " << eps_ms[j] << endl;
-		cout << "Time elapsed: " << duration[j] << " ms" << endl;
-	}
-	cout << "Average time elapsed: " << total_duration / (double)tries << " ms" << endl;
-
 	cout << "step single argument" << endl;
 	total_duration = 0;
 	for (int j = 0; j < tries; j++) {
 		auto start = system_clock::now();
-		for (int i = 0; i < 100000000; i++)
+		for (int i = 0; i < number_of_repeats; i++)
 			step(a, eps_ms[j]);
 		auto end = system_clock::now();
 		duration[j] = duration_cast<milliseconds>(end - start).count();
 		total_duration += duration[j];
-		cout << "eps_m: " << eps_ms[j] << endl;
-		cout << "Time elapsed: " << duration[j] << " ms" << endl;
+		//cout << "eps_m: " << eps_ms[j] << endl;
+		//cout << "Time elapsed: " << duration[j] << " ms" << endl;
 	}
 	cout << "Average time elapsed: " << total_duration / (double) tries << " ms" << endl;
+
+	cout << "step single argument 2" << endl;
+	total_duration = 0;
+	for (int j = 0; j < tries; j++) {
+		auto start = system_clock::now();
+		for (int i = 0; i < number_of_repeats; i++)
+			step_2(a, eps_ms[j]);
+		auto end = system_clock::now();
+		duration[j] = duration_cast<milliseconds>(end - start).count();
+		total_duration += duration[j];
+		//cout << "eps_m: " << eps_ms[j] << endl;
+		//cout << "Time elapsed: " << duration[j] << " ms" << endl;
+	}
+	cout << "Average time elapsed: " << total_duration / (double)tries << " ms" << endl;
 
 	/*cout << "64-bit random genrand" << endl;
 	for (int j = 0; j < 10; j++) {
@@ -129,6 +128,6 @@ int main()
 		cout << "Time elapsed: " << duration_cast<milliseconds>(end - start).count() << " ms" << endl;
 	}*/
 
-	system("pause");
+	//system("pause");
 	return 0;
 }
