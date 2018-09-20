@@ -15,6 +15,7 @@
 #include "mt64.h"
 
 static const int16_t n = 8;
+const static uint16_t tries = 100;
 
 using namespace std;
 using namespace chrono;
@@ -77,7 +78,7 @@ int main()
 	uniform_int_distribution<int16_t> d_signed(-6, 6);
 	auto random_signed = bind(d_signed, gen);
 
-	array<int16_t, 100> eps_ms;
+	array<int16_t, tries> eps_ms;
 	generate(eps_ms.begin(), eps_ms.end(), random_signed);
 
 	uniform_int_distribution<int16_t> dist16(numeric_limits<int16_t>::min(), numeric_limits<int16_t>::max());
@@ -88,26 +89,12 @@ int main()
 	tuple<int16_t, int16_t, int16_t, int16_t> b;
 
 
-	int duration[10];
+	int duration[tries];
 	int total_duration = 0;
 
-	cout << "step single argument" << endl;
+	cout << "step single argument 2" << endl;
 	total_duration = 0;
-	for (int j = 0; j < 10; j++) {
-		auto start = system_clock::now();
-		for (int i = 0; i < 100000000; i++)
-			step(a, eps_ms[j]);
-		auto end = system_clock::now();
-		duration[j] = duration_cast<milliseconds>(end - start).count();
-		total_duration += duration[j];
-		cout << "eps_m: " << eps_ms[j] << endl;
-		cout << "Time elapsed: " << duration[j] << " ms" << endl;
-	}
-	cout << "Average time elapsed: " << total_duration / 10.0 << " ms" << endl;
-
-	cout << "step single argument with eps_m index usage" << endl;
-	total_duration = 0;
-	for (int j = 0; j < 10; j++) {
+	for (int j = 0; j < tries; j++) {
 		auto start = system_clock::now();
 		for (int i = 0; i < 100000000; i++)
 			step_2(a, eps_ms[j]);
@@ -117,7 +104,21 @@ int main()
 		cout << "eps_m: " << eps_ms[j] << endl;
 		cout << "Time elapsed: " << duration[j] << " ms" << endl;
 	}
-	cout << "Average time elapsed: " << total_duration / 10.0 << " ms" << endl;
+	cout << "Average time elapsed: " << total_duration / (double)tries << " ms" << endl;
+
+	cout << "step single argument" << endl;
+	total_duration = 0;
+	for (int j = 0; j < tries; j++) {
+		auto start = system_clock::now();
+		for (int i = 0; i < 100000000; i++)
+			step(a, eps_ms[j]);
+		auto end = system_clock::now();
+		duration[j] = duration_cast<milliseconds>(end - start).count();
+		total_duration += duration[j];
+		cout << "eps_m: " << eps_ms[j] << endl;
+		cout << "Time elapsed: " << duration[j] << " ms" << endl;
+	}
+	cout << "Average time elapsed: " << total_duration / (double) tries << " ms" << endl;
 
 	/*cout << "64-bit random genrand" << endl;
 	for (int j = 0; j < 10; j++) {
