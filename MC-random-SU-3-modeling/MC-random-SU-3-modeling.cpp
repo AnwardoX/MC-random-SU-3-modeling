@@ -49,19 +49,6 @@ void step(array<uint8_t, n> &a, const int16_t eps_m) {
 	}
 }
 
-void step_2(array<uint8_t, n> &a, const int16_t eps_m) {
-
-	if (eps_m >= 0 && a[eps_m] == 0 && a[eps_m + 1] == 1) {
-		a[eps_m] = 1;
-		a[eps_m + 1] = 0;
-	}
-
-	if (eps_m < 0 && a[-eps_m] == 1 && a[-eps_m + 1] == 0) {
-		a[-eps_m] = 0;
-		a[-eps_m + 1] = 1;
-	}
-}
-
 tuple<int16_t, int16_t, int16_t, int16_t> generate_eps_m() {
 	uint64_t r = genrand64_int64();
 	return make_tuple(static_cast<int16_t>(r >> 48),
@@ -87,37 +74,15 @@ int main()
 
 	tuple<int16_t, int16_t, int16_t, int16_t> b;
 
-
-	int duration[10];
-	int total_duration = 0;
-
-	cout << "step single argument" << endl;
-	total_duration = 0;
+	/*cout << "step single argument" << endl;
 	for (int j = 0; j < 10; j++) {
 		auto start = system_clock::now();
 		for (int i = 0; i < 100000000; i++)
 			step(a, eps_ms[j]);
 		auto end = system_clock::now();
-		duration[j] = duration_cast<milliseconds>(end - start).count();
-		total_duration += duration[j];
 		cout << "eps_m: " << eps_ms[j] << endl;
-		cout << "Time elapsed: " << duration[j] << " ms" << endl;
-	}
-	cout << "Average time elapsed: " << total_duration / 10.0 << " ms" << endl;
-
-	cout << "step single argument with eps_m index usage" << endl;
-	total_duration = 0;
-	for (int j = 0; j < 10; j++) {
-		auto start = system_clock::now();
-		for (int i = 0; i < 100000000; i++)
-			step_2(a, eps_ms[j]);
-		auto end = system_clock::now();
-		duration[j] = duration_cast<milliseconds>(end - start).count();
-		total_duration += duration[j];
-		cout << "eps_m: " << eps_ms[j] << endl;
-		cout << "Time elapsed: " << duration[j] << " ms" << endl;
-	}
-	cout << "Average time elapsed: " << total_duration / 10.0 << " ms" << endl;
+		cout << "Time elapsed: " << duration_cast<milliseconds>(end - start).count() << " ms" << endl;
+	}*/
 
 	/*cout << "64-bit random genrand" << endl;
 	for (int j = 0; j < 10; j++) {
