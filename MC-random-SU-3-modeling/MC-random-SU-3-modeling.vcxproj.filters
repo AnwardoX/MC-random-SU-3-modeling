@@ -21,6 +21,9 @@
     <ClInclude Include="mt64.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Markov_chain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -30,6 +33,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mt19937-64.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Markov_chain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

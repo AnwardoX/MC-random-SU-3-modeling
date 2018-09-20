@@ -13,6 +13,7 @@
 #include <tuple>
 
 #include "mt64.h"
+#include "Markov_chain.h"
 
 static const int16_t n = 8;
 
@@ -34,20 +35,6 @@ auto random = bind(dist, gen);
 	a[m]     = _mm_extract_epi8(shuffle_reg, 0);
 	a[m + 1] = _mm_extract_epi8(shuffle_reg, 1);
 }*/
-
-void step(array<uint8_t, n> &a, const int16_t eps_m) {
-	int16_t m = abs(eps_m);
-
-	if (eps_m >= 0 && a[m] == 0 && a[m + 1] == 1) {
-		a[m] = 1;
-		a[m + 1] = 0;
-	}
-
-	if (eps_m < 0 && a[m] == 1 && a[m + 1] == 0) {
-		a[m] = 0;
-		a[m + 1] = 1;
-	}
-}
 
 tuple<int16_t, int16_t, int16_t, int16_t> generate_eps_m() {
 	uint64_t r = genrand64_int64();
