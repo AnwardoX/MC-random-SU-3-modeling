@@ -9,7 +9,7 @@ bool markov_chain_t::state_compare_f() const
 	return true;
 }
 
-void markov_chain_t::markov_chain_step_f(const int16_t & eps_m, const state_index_t & index)
+void markov_chain_t::markov_chain_step_f(const int16_t & eps_m, const state_label_t & index)
 {
 	uint16_t m = abs(eps_m); 
 
