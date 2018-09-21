@@ -153,12 +153,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Markov_chain.h" />
+    <ClInclude Include="markov_chain_t.h" />
     <ClInclude Include="mt64.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Markov_chain.cpp" />
+    <ClCompile Include="markov_chain_t.cpp" />
     <ClCompile Include="MC-random-SU-3-modeling.cpp" />
     <ClCompile Include="mt19937-64.cpp" />
     <ClCompile Include="pch.cpp">
