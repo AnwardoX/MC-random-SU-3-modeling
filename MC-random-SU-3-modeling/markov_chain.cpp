@@ -27,8 +27,8 @@ markov_chain_t::markov_chain_t(const int16_t &_n) :
 			*l = 0;
 	}
 
-	int i = genrand64_int64() >> 60;
-	sequences[1][i] = !sequences[1][i];
+	// int i = genrand64_int64() >> 60;
+	// sequences[1][i] = !sequences[1][i];
 
 	init_eps_ms();
 }
