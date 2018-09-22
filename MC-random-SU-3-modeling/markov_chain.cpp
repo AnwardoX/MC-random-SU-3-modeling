@@ -1,6 +1,9 @@
 #include "pch.h"
 
+#include <cmath>
 #include <string>
+#include "mt64.h"
+
 #include "markov_chain.h"
 
 markov_chain_t::markov_chain_t(int16_t &_n) :
@@ -23,6 +26,8 @@ markov_chain_t::markov_chain_t(int16_t &_n) :
 		else
 			*l = 0;
 	}
+
+	init_eps_ms();
 }
 
 markov_chain_t::markov_chain_t(const vector<uint8_t> &_init_seq_high, const vector<uint8_t> &_init_seq_low) :
@@ -52,6 +57,26 @@ markov_chain_t::markov_chain_t(const vector<uint8_t> &_init_seq_high, const vect
 
 	sequences[0] = move(_init_seq_high);
 	sequences[1] = move(_init_seq_low);
+
+	init_eps_ms();
+}
+
+void markov_chain_t::init_eps_ms()
+{
+	size_t eps_ms_size = 5 * n * n * n * log(n);
+	eps_ms_size += eps_ms_size % 4;
+	eps_ms.reserve(eps_ms_size);
+
+	for (auto e = eps_ms.begin(); e < eps_ms.end(); e += 4) {
+		uint64_t r = genrand64_int64();
+
+		*e = static_cast<int16_t>(r >> 48),
+			*(e + 1) = static_cast<int16_t>((r >> 32) & 65535),
+			*(e + 2) = static_cast<int16_t>((r >> 16) & 65535),
+			*(e + 3) = static_cast<int16_t>(r & 65535);
+	}
+
+	init_eps_ms();
 }
 
 int16_t markov_chain_t::get_n() const
@@ -61,7 +86,7 @@ int16_t markov_chain_t::get_n() const
 
 vector<uint8_t> markov_chain_t::get_sequence(const sequence_label_t &index) const
 {
-	return sequences.at(index);
+	return sequences[index];
 }
 
 bool markov_chain_t::state_compare() const
@@ -69,15 +94,14 @@ bool markov_chain_t::state_compare() const
 	for (auto h = sequences[0].cbegin(), l = sequences[1].cbegin();
 		      h < sequences[0].cend() && l < sequences[1].cend(); // paranoid. may be optimized if necessary
 		      h++, l++) {
-		if (*h != *l) {
+		if (*h != *l)
 			return false;
-		}
 	}
 
 	return true;
 }
 
-void markov_chain_t::markov_chain_step(const int16_t &eps_m, const sequence_label_t &index)
+void markov_chain_t::markov_chain_step(const sequence_label_t &index, const int16_t &eps_m)
 {
 	int16_t m = abs(eps_m); 
 

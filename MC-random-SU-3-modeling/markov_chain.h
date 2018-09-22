@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 
 using namespace std;
@@ -15,6 +16,10 @@ private:
 		vector<uint8_t>(2 * n),
 		vector<uint8_t>(2 * n)
 	};
+
+	vector<int16_t> eps_ms;
+	void init_eps_ms();
+
 public:
 	//inits the the 2 states with high and low values
 	markov_chain_t(int16_t &_n);
@@ -34,6 +39,6 @@ public:
 
 	//perfoms a single MC step with random parameter eps_m
 	//NOT A SAFE FUNCTION OF argument eps_m - eps_m must be in the range [0, 2n-2]
-	void markov_chain_step(const int16_t &eps_m, const sequence_label_t &index);
+	void markov_chain_step(const sequence_label_t &index, const int16_t &eps_m);
 };
 
