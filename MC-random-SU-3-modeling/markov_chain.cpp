@@ -24,6 +24,15 @@ void markov_chain_t::init_eps_m_array()
 	}
 }
 
+void markov_chain_t::MC_evolve()
+{
+	for (auto i = eps_m_array.end() - 1; i >= eps_m_array.begin(); i--)
+	{
+		markov_chain_step(high, *i);
+		markov_chain_step(low, *i);
+	}
+}
+
 void markov_chain_t::update_eps_m_array()
 {
 	//double the size
