@@ -70,10 +70,10 @@ void markov_chain_t::init_eps_ms()
 	for (auto e = eps_ms.begin(); e < eps_ms.end(); e += 4) {
 		uint64_t r = genrand64_int64();
 
-		*e = static_cast<int16_t>(r >> 48),
-			*(e + 1) = static_cast<int16_t>((r >> 32) & 65535),
-			*(e + 2) = static_cast<int16_t>((r >> 16) & 65535),
-			*(e + 3) = static_cast<int16_t>(r & 65535);
+		*e       = static_cast<int16_t>( r >> 48)         ,
+		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535),
+		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535),
+		*(e + 3) = static_cast<int16_t>( r        & 65535);
 	}
 
 	init_eps_ms();
