@@ -10,23 +10,23 @@ int64_t markov_chain_t::exptected_number_of_steps()
 void markov_chain_t::init_eps_m_array()
 {
 	size_t eps_m_array_size = exptected_number_of_steps();
-	eps_m_array_size += eps_m_array_size % 4; //to make the length a whole number of 4
-	eps_m_array.reserve(eps_m_array_size);
+	eps_m_array_size -= eps_m_array_size % 4; //to make the length a whole number of 4
+	eps_m_array.resize(eps_m_array_size);
 
 	for (auto e = eps_m_array.begin(); e < eps_m_array.end(); e += 4)
 	{
 		uint64_t r = genrand64_int64();
 
-		*e = static_cast<int16_t>(r >> 48),
-		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535),
-		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535),
+		*e = static_cast<int16_t>(r >> 48);
+		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535);
+		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535);
 		*(e + 3) = static_cast<int16_t>(r         & 65535);
 	}
 }
 
 void markov_chain_t::MC_evolve()
 {
-	for (auto i = eps_m_array.end() - 1; i >= eps_m_array.begin(); i--)
+	for (auto i = eps_m_array.rbegin(); i < eps_m_array.rend(); i++)
 	{
 		markov_chain_step(high, *i);
 		markov_chain_step(low, *i);
@@ -38,15 +38,15 @@ void markov_chain_t::update_eps_m_array()
 	//double the size
 	size_t eps_m_array_size = eps_m_array.size();
 	//no need to perform alignment up to 4
-	eps_m_array.reserve(2 * eps_m_array_size);
+	eps_m_array.resize(2 * eps_m_array_size);
 
 	for (auto e = eps_m_array.begin() + eps_m_array_size; e < eps_m_array.end(); e += 4)
 	{
 		uint64_t r = genrand64_int64();
 
-		*e = static_cast<int16_t>(r >> 48),
-		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535),
-		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535),
+		*e = static_cast<int16_t>(r >> 48);
+		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535);
+		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535);
 		*(e + 3) = static_cast<int16_t>(r         & 65535);
 	}
 }
@@ -57,17 +57,17 @@ void markov_chain_t::reset_eps_m_array()
 	//set the size
 	size_t eps_m_array_size = exptected_number_of_steps();
 	//erase extra space
-	eps_m_array.erase(eps_m_array.begin() + eps_m_array_size, eps_m_array.end());
+	eps_m_array.resize(eps_m_array_size);
 
 	//refill the array
 	for (auto e = eps_m_array.begin(); e < eps_m_array.end(); e += 4)
 	{
 		uint64_t r = genrand64_int64();
 
-		*e = static_cast<int16_t>(r >> 48),
-			*(e + 1) = static_cast<int16_t>((r >> 32) & 65535),
-			*(e + 2) = static_cast<int16_t>((r >> 16) & 65535),
-			*(e + 3) = static_cast<int16_t>(r & 65535);
+		*e = static_cast<int16_t>(r >> 48);
+		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535);
+		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535);
+		*(e + 3) = static_cast<int16_t>(r &         65535);
 	}
 }
 
@@ -147,14 +147,15 @@ void markov_chain_t::reset_sequence()
 		h++, l++)
 	{
 		if (h < sequences[0].begin() + n)
+		{
 			*h = 1;
-		else
-			*h = 0;
-
-		if (l < sequences[1].begin() + n)
-			*l = 1;
-		else
 			*l = 0;
+		}
+		else
+		{
+			*h = 0;
+			*l = 1;
+		}
 	}
 }
 
