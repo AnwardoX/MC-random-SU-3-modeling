@@ -9,13 +9,15 @@
 markov_chain_t::markov_chain_t(int16_t &_n) :
 	n(_n)
 {
-	if (_n < 2) {
-		throw("N < 2, which doesn't make sense.");
+	if (_n < 1) 
+	{
+		throw("ERROR: n must be positive integer.");
 	}
 
 	for (auto h = sequences[0].begin(), l = sequences[1].begin();
 		      h < sequences[0].end() && l < sequences[1].end(); // paranoid. may be optimized if necessary
-		      h++, l++) {
+		      h++, l++)
+	{
 		if (h < sequences[0].begin() + n)
 			*h = 1;
 		else
@@ -27,40 +29,43 @@ markov_chain_t::markov_chain_t(int16_t &_n) :
 			*l = 0;
 	}
 
-	init_eps_ms();
+	//init_eps_ms();
 }
 
 markov_chain_t::markov_chain_t(const vector<uint8_t> &_init_seq_high, const vector<uint8_t> &_init_seq_low) :
 	n(_init_seq_high.size() / 2)
 {	
-	if (_init_seq_high.size() % 2 != 0) {
-		throw("High init sequence length is an odd number.");
+	if (_init_seq_high.size() % 2 != 0)
+	{
+		throw("ERROR: High init sequence length is an odd number.");
 	}
 
-	if (_init_seq_high.size() != _init_seq_low.size()) {
-		throw("Sequences has different length.");
+	if (_init_seq_high.size() != _init_seq_low.size())
+	{
+		throw("ERROR: Sequences has different length.");
 	}
 
+	//test on the input validity
 	for (auto h = _init_seq_high.cbegin(), l = _init_seq_high.cbegin();
 		      h < _init_seq_low .cend() && l < _init_seq_low .cend(); // paranoid. may be optimized if necessary
-		      h++, l++) {
-		if (h <  _init_seq_high.cbegin() + n && *h != 1)
-			throw( "First half of high init sequence doesn't consists of 1's only. See " + to_string(h - _init_seq_high.cbegin()) + " element (base 0).");
-		if (h >= _init_seq_high.cbegin() + n && *h != 0)
-			throw("Second half of high init sequence doesn't consists of 0's only. See " + to_string(h - _init_seq_high.cbegin()) + " element (base 0).");
-
-		if (l <  _init_seq_low.cbegin() + n && *l != 0)
-			throw( "First half of low init sequence doesn't consists of 0's only. See " + to_string(l - _init_seq_low.cbegin()) + " element (base 0).");
-		if (l >= _init_seq_low.cbegin() + n && *l != 1) 
-			throw("Second half of low init sequence doesn't consists of 1's only. See " + to_string(l - _init_seq_low.cbegin()) + " element (base 0).");
+		      h++, l++)
+	{
+		//index string in case of error
+		auto index_string = to_string(h - _init_seq_high.cbegin());
+		if (*h != 1 && *h != 0)
+			throw("ERROR: The " + index_string + "th index of the high init sequence is not 0 or 1");
+		if (*l != 1 && *l != 0)
+			throw("ERROR: The " + index_string + "th index of the low init sequence is not 0 or 1");
 	}
 
+	//init the sequence, if everything is ok
 	sequences[0] = move(_init_seq_high);
 	sequences[1] = move(_init_seq_low);
 
-	init_eps_ms();
+	//init_eps_ms();
 }
 
+/*
 void markov_chain_t::init_eps_ms()
 {
 	size_t eps_ms_size = 5 * n * n * n * log(n);
@@ -78,6 +83,7 @@ void markov_chain_t::init_eps_ms()
 
 	init_eps_ms();
 }
+*/
 
 int16_t markov_chain_t::get_n() const
 {
@@ -89,7 +95,18 @@ vector<uint8_t> markov_chain_t::get_sequence(const sequence_label_t &index) cons
 	return sequences[index];
 }
 
-bool markov_chain_t::state_compare() const
+uint16_t markov_chain_t::sequence_distance() const
+{
+	uint16_t dist = 0;
+	for (auto h = sequences[0].cbegin(), l = sequences[1].cbegin();
+		h < sequences[0].cend() && l < sequences[1].cend(); // paranoid. may be optimized if necessary
+		h++, l++)
+		dist += *h - *l;
+	dist /= 2 * n;
+	return dist;
+}
+
+bool markov_chain_t::sequence_compare() const
 {
 	for (auto h = sequences[0].cbegin(), l = sequences[1].cbegin();
 		      h < sequences[0].cend() && l < sequences[1].cend(); // paranoid. may be optimized if necessary

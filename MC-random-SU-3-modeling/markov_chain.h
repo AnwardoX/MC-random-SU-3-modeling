@@ -17,8 +17,8 @@ private:
 		vector<uint8_t>(2 * n)
 	};
 
-	vector<int16_t> eps_ms;
-	void init_eps_ms();
+	//vector<int16_t> eps_ms;
+	//void init_eps_ms();
 
 public:
 	//inits the the 2 states with high and low values
@@ -32,10 +32,10 @@ public:
 	int16_t get_n() const;
 	vector<uint8_t> get_sequence(const sequence_label_t &index) const;
 
-	//gives the L1 distance between the 2 states
-	uint16_t state_distance() const;
+	//L1 distance between the 2 states
+	uint16_t sequence_distance() const;
 	//quick state comparison; returns true, if the states coincide
-	bool state_compare() const;
+	bool sequence_compare() const;
 
 	//perfoms a single MC step with random parameter eps_m
 	//NOT A SAFE FUNCTION OF argument eps_m - eps_m must be in the range [0, 2n-2]
