@@ -3,7 +3,7 @@
 
 using namespace std;
 
-enum sequence_label_t {high, low};
+enum sequence_label_t {high = 0, low = 1};
 
 class markov_chain_t
 {
@@ -12,8 +12,8 @@ private:
 	const int16_t n;
 	//stores the 2 states
 	vector<vector<uint8_t>> sequences = {
-		vector<uint8_t>(n),
-		vector<uint8_t>(n)
+		vector<uint8_t>(2 * n),
+		vector<uint8_t>(2 * n)
 	};
 public:
 	//inits the the 2 states with high and low values
@@ -21,7 +21,7 @@ public:
 	//inits with arbitrary state;
 	//safe function: in case of either init_state vector is of invalid length, inits with default high/low states;
 	//in case of non 0-1 values, inits with value % 2
-	markov_chain_t(vector<uint8_t> &_init_state_high, vector<uint8_t> &_init_state_low);
+	markov_chain_t(const vector<uint8_t> &_init_state_high, const vector<uint8_t> &_init_state_low);
 
 	//getters:
 	int16_t get_n() const;
