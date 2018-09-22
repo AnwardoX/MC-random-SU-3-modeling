@@ -6,7 +6,7 @@
 
 #include "markov_chain.h"
 
-markov_chain_t::markov_chain_t(int16_t &_n) :
+markov_chain_t::markov_chain_t(const int16_t &_n) :
 	n(_n)
 {
 	if (_n < 2) {
@@ -26,6 +26,9 @@ markov_chain_t::markov_chain_t(int16_t &_n) :
 		else
 			*l = 0;
 	}
+
+	int i = genrand64_int64() >> 60;
+	sequences[1][i] = !sequences[1][i];
 
 	init_eps_ms();
 }
@@ -75,8 +78,6 @@ void markov_chain_t::init_eps_ms()
 		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535),
 		*(e + 3) = static_cast<int16_t>( r        & 65535);
 	}
-
-	init_eps_ms();
 }
 
 int16_t markov_chain_t::get_n() const
@@ -91,10 +92,8 @@ vector<uint8_t> markov_chain_t::get_sequence(const sequence_label_t &index) cons
 
 bool markov_chain_t::state_compare() const
 {
-	for (auto h = sequences[0].cbegin(), l = sequences[1].cbegin();
-		      h < sequences[0].cend() && l < sequences[1].cend(); // paranoid. may be optimized if necessary
-		      h++, l++) {
-		if (*h != *l)
+	for (int i = 0; i < sequences[0].size(); i++) {
+		if (sequences[0][i] != sequences[1][i])
 			return false;
 	}
 
