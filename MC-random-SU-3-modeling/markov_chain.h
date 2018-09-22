@@ -31,7 +31,7 @@ private:
 	int64_t last_evolution_length = 0;
 public:
 	//inits the the 2 states with high and low values
-	markov_chain_t(int16_t &_n);
+	markov_chain_t(const int16_t &_n);
 	//inits with arbitrary state;
 	//safe function: in case of either init_state vector is of invalid length, inits with default high/low states;
 	//in case of non 0-1 values, inits with value % 2
