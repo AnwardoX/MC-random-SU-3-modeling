@@ -1,10 +1,86 @@
 #include "pch.h"
-
-#include <cmath>
-#include <string>
-#include "mt64.h"
-
 #include "markov_chain.h"
+#include <string>
+
+int64_t markov_chain_t::exptected_number_of_steps()
+{
+	return 5 * n * n * n * log(n);
+}
+
+void markov_chain_t::init_eps_m_array()
+{
+	size_t eps_m_array_size = exptected_number_of_steps();
+	eps_m_array_size += eps_m_array_size % 4; //to make the length a whole number of 4
+	eps_m_array.reserve(eps_m_array_size);
+
+	for (auto e = eps_m_array.begin(); e < eps_m_array.end(); e += 4)
+	{
+		uint64_t r = genrand64_int64();
+
+		*e = static_cast<int16_t>(r >> 48),
+		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535),
+		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535),
+		*(e + 3) = static_cast<int16_t>(r         & 65535);
+	}
+}
+
+void markov_chain_t::update_eps_m_array()
+{
+	//double the size
+	size_t eps_m_array_size = eps_m_array.size();
+	//no need to perform alignment up to 4
+	eps_m_array.reserve(2 * eps_m_array_size);
+
+	for (auto e = eps_m_array.begin() + eps_m_array_size; e < eps_m_array.end(); e += 4)
+	{
+		uint64_t r = genrand64_int64();
+
+		*e = static_cast<int16_t>(r >> 48),
+		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535),
+		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535),
+		*(e + 3) = static_cast<int16_t>(r         & 65535);
+	}
+}
+
+void markov_chain_t::reset_eps_m_array()
+{
+	//clear the memory
+	//set the size
+	size_t eps_m_array_size = exptected_number_of_steps();
+	//erase extra space
+	eps_m_array.erase(eps_m_array.begin() + eps_m_array_size, eps_m_array.end());
+
+	//refill the array
+	for (auto e = eps_m_array.begin(); e < eps_m_array.end(); e += 4)
+	{
+		uint64_t r = genrand64_int64();
+
+		*e = static_cast<int16_t>(r >> 48),
+			*(e + 1) = static_cast<int16_t>((r >> 32) & 65535),
+			*(e + 2) = static_cast<int16_t>((r >> 16) & 65535),
+			*(e + 3) = static_cast<int16_t>(r & 65535);
+	}
+}
+
+vector<uint8_t> markov_chain_t::CFTP()
+{
+	//step 1: run CFTP algo
+	while (!sequence_compare())
+	{
+		reset_sequence();
+		MC_evolve();
+		update_eps_m_array();
+	}
+
+	//step 2: store the results
+	auto output_sequence = get_sequence(high);
+	last_evolution_length = eps_m_array.size();
+
+	//step 2: restore the init state
+	reset_sequence();
+	reset_eps_m_array();
+	return output_sequence;
+}
 
 markov_chain_t::markov_chain_t(int16_t &_n) :
 	n(_n)
@@ -14,22 +90,11 @@ markov_chain_t::markov_chain_t(int16_t &_n) :
 		throw("ERROR: n must be positive integer.");
 	}
 
-	for (auto h = sequences[0].begin(), l = sequences[1].begin();
-		      h < sequences[0].end() && l < sequences[1].end(); // paranoid. may be optimized if necessary
-		      h++, l++)
-	{
-		if (h < sequences[0].begin() + n)
-			*h = 1;
-		else
-			*h = 0;
+	//a quick way to reset the states to their default values
+	reset_sequence();
 
-		if (l < sequences[1].begin() + n)
-			*l = 1;
-		else
-			*l = 0;
-	}
-
-	//init_eps_ms();
+	//generate the required number of random elements
+	init_eps_m_array();
 }
 
 markov_chain_t::markov_chain_t(const vector<uint8_t> &_init_seq_high, const vector<uint8_t> &_init_seq_low) :
@@ -62,28 +127,27 @@ markov_chain_t::markov_chain_t(const vector<uint8_t> &_init_seq_high, const vect
 	sequences[0] = move(_init_seq_high);
 	sequences[1] = move(_init_seq_low);
 
-	//init_eps_ms();
+	//generate the required number of random elements
+	init_eps_m_array();
 }
 
-/*
-void markov_chain_t::init_eps_ms()
+void markov_chain_t::reset_sequence()
 {
-	size_t eps_ms_size = 5 * n * n * n * log(n);
-	eps_ms_size += eps_ms_size % 4;
-	eps_ms.reserve(eps_ms_size);
+	for (auto h = sequences[0].begin(), l = sequences[1].begin();
+		h < sequences[0].end() && l < sequences[1].end(); // paranoid. may be optimized if necessary
+		h++, l++)
+	{
+		if (h < sequences[0].begin() + n)
+			*h = 1;
+		else
+			*h = 0;
 
-	for (auto e = eps_ms.begin(); e < eps_ms.end(); e += 4) {
-		uint64_t r = genrand64_int64();
-
-		*e       = static_cast<int16_t>( r >> 48)         ,
-		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535),
-		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535),
-		*(e + 3) = static_cast<int16_t>( r        & 65535);
+		if (l < sequences[1].begin() + n)
+			*l = 1;
+		else
+			*l = 0;
 	}
-
-	init_eps_ms();
 }
-*/
 
 int16_t markov_chain_t::get_n() const
 {
@@ -93,6 +157,11 @@ int16_t markov_chain_t::get_n() const
 vector<uint8_t> markov_chain_t::get_sequence(const sequence_label_t &index) const
 {
 	return sequences[index];
+}
+
+int64_t markov_chain_t::get_last_evolution_length() const
+{
+	return last_evolution_length;
 }
 
 uint16_t markov_chain_t::sequence_distance() const
@@ -110,7 +179,8 @@ bool markov_chain_t::sequence_compare() const
 {
 	for (auto h = sequences[0].cbegin(), l = sequences[1].cbegin();
 		      h < sequences[0].cend() && l < sequences[1].cend(); // paranoid. may be optimized if necessary
-		      h++, l++) {
+		      h++, l++)
+	{
 		if (*h != *l)
 			return false;
 	}
@@ -138,3 +208,4 @@ void markov_chain_t::markov_chain_step(const sequence_label_t &index, const int1
 		sequences[index][m + 1] = 1;
 	}
 }
+
