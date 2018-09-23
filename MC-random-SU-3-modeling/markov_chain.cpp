@@ -2,92 +2,91 @@
 #include "markov_chain.h"
 #include <string>
 
-int64_t markov_chain_t::exptected_number_of_steps()
+size_t markov_chain_t::expected_number_of_steps() const
 {
 	return 5 * n * n * n * log(n);
 }
 
-void markov_chain_t::init_eps_m_array()
+void markov_chain_t::init_eps_ms()
 {
-	size_t eps_m_array_size = exptected_number_of_steps();
-	eps_m_array_size -= eps_m_array_size % 4; //to make the length a whole number of 4
-	eps_m_array.resize(eps_m_array_size);
+	size_t eps_ms_size = expected_number_of_steps();
+	eps_ms_size -= eps_ms_size % 4; //to make the length a whole number of 4
+	eps_ms.resize(eps_ms_size);
 
-	for (auto e = eps_m_array.begin(); e < eps_m_array.end(); e += 4)
+	for (auto e = eps_ms.begin(); e < eps_ms.end(); e += 4)
 	{
 		uint64_t r = genrand64_int64();
 
-		*e = static_cast<int16_t>(r >> 48);
+		*e       = static_cast<int16_t>(r >> 48);
 		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535);
 		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535);
 		*(e + 3) = static_cast<int16_t>(r         & 65535);
 	}
 }
 
-void markov_chain_t::MC_evolve()
+void markov_chain_t::evolve_mc()
 {
-	for (auto i = eps_m_array.rbegin(); i < eps_m_array.rend(); i++)
+	for (auto i = eps_ms.crbegin(); i < eps_ms.crend(); i++)
 	{
-		markov_chain_step(high, *i);
-		markov_chain_step(low, *i);
+		do_mc_step(high, *i);
+		do_mc_step(low, *i);
 	}
 }
 
-void markov_chain_t::update_eps_m_array()
+void markov_chain_t::update_eps_ms()
 {
 	//double the size
-	size_t eps_m_array_size = eps_m_array.size();
+	size_t eps_ms_old_size = eps_ms.size();
 	//no need to perform alignment up to 4
-	eps_m_array.resize(2 * eps_m_array_size);
+	eps_ms.resize(2 * eps_ms_old_size);
 
-	for (auto e = eps_m_array.begin() + eps_m_array_size; e < eps_m_array.end(); e += 4)
+	for (auto e = eps_ms.begin() + eps_ms_old_size; e < eps_ms.end(); e += 4)
 	{
 		uint64_t r = genrand64_int64();
 
-		*e = static_cast<int16_t>(r >> 48);
+		*e       = static_cast<int16_t>(r >> 48);
 		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535);
 		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535);
 		*(e + 3) = static_cast<int16_t>(r         & 65535);
 	}
 }
 
-void markov_chain_t::reset_eps_m_array()
+void markov_chain_t::reset_eps_ms()
 {
 	//clear the memory
 	//set the size
-	size_t eps_m_array_size = exptected_number_of_steps();
 	//erase extra space
-	eps_m_array.resize(eps_m_array_size);
+	eps_ms.resize(expected_number_of_steps());
 
 	//refill the array
-	for (auto e = eps_m_array.begin(); e < eps_m_array.end(); e += 4)
+	for (auto e = eps_ms.begin(); e < eps_ms.end(); e += 4)
 	{
 		uint64_t r = genrand64_int64();
 
-		*e = static_cast<int16_t>(r >> 48);
+		*e       = static_cast<int16_t>(r >> 48);
 		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535);
 		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535);
 		*(e + 3) = static_cast<int16_t>(r &         65535);
 	}
 }
 
-vector<uint8_t> markov_chain_t::CFTP()
+vector<uint8_t> markov_chain_t::do_cftp()
 {
 	//step 1: run CFTP algo
-	while (!sequence_compare())
+	while (!sequences_are_equal())
 	{
 		reset_sequence();
-		MC_evolve();
-		update_eps_m_array();
+		evolve_mc();
+		update_eps_ms();
 	}
 
 	//step 2: store the results
 	auto output_sequence = get_sequence(high);
-	last_evolution_length = eps_m_array.size();
+	last_evolution_length = eps_ms.size();
 
 	//step 2: restore the init state
 	reset_sequence();
-	reset_eps_m_array();
+	reset_eps_ms();
 	return output_sequence;
 }
 
@@ -103,7 +102,7 @@ markov_chain_t::markov_chain_t(int16_t const &_n) :
 	reset_sequence();
 
 	//generate the required number of random elements
-	init_eps_m_array();
+	init_eps_ms();
 }
 
 markov_chain_t::markov_chain_t(const vector<uint8_t> &_init_seq_high, const vector<uint8_t> &_init_seq_low) :
@@ -125,11 +124,11 @@ markov_chain_t::markov_chain_t(const vector<uint8_t> &_init_seq_high, const vect
 		      h++, l++)
 	{
 		//index string in case of error
-		auto index_string = to_string(h - _init_seq_high.cbegin());
+		string index_string = to_string(h - _init_seq_high.cbegin());
 		if (*h != 1 && *h != 0)
-			throw("ERROR: The " + index_string + "th index of the high init sequence is not 0 or 1");
+			throw("ERROR: The " + index_string + "th element of the high init sequence is neither 0 nor 1");
 		if (*l != 1 && *l != 0)
-			throw("ERROR: The " + index_string + "th index of the low init sequence is not 0 or 1");
+			throw("ERROR: The " + index_string + "th element of the low init sequence is neither 0 nor 1");
 	}
 
 	//init the sequence, if everything is ok
@@ -137,14 +136,14 @@ markov_chain_t::markov_chain_t(const vector<uint8_t> &_init_seq_high, const vect
 	sequences[1] = move(_init_seq_low);
 
 	//generate the required number of random elements
-	init_eps_m_array();
+	init_eps_ms();
 }
 
 void markov_chain_t::reset_sequence()
 {
 	for (auto h = sequences[0].begin(), l = sequences[1].begin();
-		h < sequences[0].end() && l < sequences[1].end(); // paranoid. may be optimized if necessary
-		h++, l++)
+		      h < sequences[0].end() && l < sequences[1].end(); // paranoid. may be optimized if necessary
+	          h++, l++)
 	{
 		if (h < sequences[0].begin() + n)
 		{
@@ -174,18 +173,18 @@ int64_t markov_chain_t::get_last_evolution_length() const
 	return last_evolution_length;
 }
 
-uint16_t markov_chain_t::sequence_distance() const
+int16_t markov_chain_t::sequence_distance() const
 {
-	uint16_t dist = 0;
+	int64_t dist = 0;
 	for (auto h = sequences[0].cbegin(), l = sequences[1].cbegin();
-		h < sequences[0].cend() && l < sequences[1].cend(); // paranoid. may be optimized if necessary
+		      h < sequences[0].cend() && l < sequences[1].cend(); // paranoid. may be optimized if necessary
 		h++, l++)
 		dist += *h - *l;
 	dist /= 2 * n;
 	return dist;
 }
 
-bool markov_chain_t::sequence_compare() const
+bool markov_chain_t::sequences_are_equal() const
 {
 	for (auto h = sequences[0].cbegin(), l = sequences[1].cbegin();
 		      h < sequences[0].cend() && l < sequences[1].cend(); // paranoid. may be optimized if necessary
@@ -198,7 +197,7 @@ bool markov_chain_t::sequence_compare() const
 	return true;
 }
 
-void markov_chain_t::markov_chain_step(const sequence_label_t &index, const int16_t &eps_m)
+void markov_chain_t::do_mc_step(const sequence_label_t &index, const int16_t &eps_m)
 {
 	int16_t m = abs(eps_m); 
 

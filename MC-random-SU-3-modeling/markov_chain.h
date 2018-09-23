@@ -18,17 +18,25 @@ private:
 		vector<uint8_t>(2 * n),
 		vector<uint8_t>(2 * n)
 	};
-
 	//random source
 	//storage for random vars
-	vector<int16_t> eps_m_array;
-	//an empirical / theoretical estimate for the number of steps
-	int64_t exptected_number_of_steps();
-	void init_eps_m_array();
-	//function, that conducts the MC evolution
-	void MC_evolve();
+	vector<int16_t> eps_ms;
 	//storage of recent number of steps
 	int64_t last_evolution_length = 0;
+	//an empirical / theoretical estimate for the number of steps
+	size_t expected_number_of_steps() const;
+
+	void init_eps_ms();
+	//random source update
+	void update_eps_ms();
+	//random source reinit
+	void reset_eps_ms();
+	//function, that conducts the MC evolution
+	void evolve_mc();
+	//perfoms a single MC step with random parameter eps_m
+	//NOT A SAFE FUNCTION OF argument eps_m - eps_m must be in the range [0, 2n-2]
+	void do_mc_step(const sequence_label_t &index, const int16_t &eps_m);
+
 public:
 	//inits the the 2 states with high and low values
 	markov_chain_t(const int16_t &_n);
@@ -45,21 +53,12 @@ public:
 	int64_t get_last_evolution_length() const;
 
 	//L1 distance between the 2 states
-	uint16_t sequence_distance() const;
+	int16_t sequence_distance() const;
 	//quick state comparison; returns true, if the states coincide
-	bool sequence_compare() const;
-
-	//perfoms a single MC step with random parameter eps_m
-	//NOT A SAFE FUNCTION OF argument eps_m - eps_m must be in the range [0, 2n-2]
-	void markov_chain_step(const sequence_label_t &index, const int16_t &eps_m); 
-
-	//random source update
-	void update_eps_m_array();
-	//random source reinit
-	void reset_eps_m_array();
+	bool sequences_are_equal() const;
 
 	//CFTP:
 	// generates a sample and resets the configurations
-	vector<uint8_t> CFTP();
+	vector<uint8_t> do_cftp();
 };
 
