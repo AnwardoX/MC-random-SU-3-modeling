@@ -90,7 +90,7 @@ vector<uint8_t> markov_chain_t::do_cftp()
 	return output_sequence;
 }
 
-markov_chain_t::markov_chain_t(int16_t const &_n) :
+markov_chain_t::markov_chain_t(const int16_t &_n) :
 	n(_n)
 {
 	if (_n < 1) 
