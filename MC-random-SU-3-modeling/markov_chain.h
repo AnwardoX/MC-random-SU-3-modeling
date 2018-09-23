@@ -33,9 +33,6 @@ private:
 	void reset_eps_ms();
 	//function, that conducts the MC evolution
 	void evolve_mc();
-	//perfoms a single MC step with random parameter eps_m
-	//NOT A SAFE FUNCTION OF argument eps_m - eps_m must be in the range [0, 2n-2]
-	void do_mc_step(const sequence_label_t &index, const int16_t &eps_m);
 
 public:
 	//inits the the 2 states with high and low values
@@ -57,6 +54,9 @@ public:
 	//quick state comparison; returns true, if the states coincide
 	bool sequences_are_equal() const;
 
+	//perfoms a single MC step with random parameter eps_m
+	//NOT A SAFE FUNCTION OF argument eps_m - eps_m must be in the range [0, 2n-2]
+	void do_mc_step(const sequence_label_t &index, const int16_t &eps_m);
 	//CFTP:
 	// generates a sample and resets the configurations
 	vector<uint8_t> do_cftp();

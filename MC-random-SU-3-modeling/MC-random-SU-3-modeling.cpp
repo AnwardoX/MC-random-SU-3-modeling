@@ -50,6 +50,15 @@ int16_t generate_sub_after()
 	r_i -= limit;
 	return r_i;
 }
+
+//correct realization
+int16_t generate_sub_after()
+{
+	double r = genrand64_real2();//[0,1) range
+	int16_t r_i = static_cast<int16_t>( (r * (2 * limit + 1)) + 0.5);
+	r_i -= limit;
+	return r_i;
+}
 */
 
 

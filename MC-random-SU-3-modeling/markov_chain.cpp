@@ -73,11 +73,23 @@ void markov_chain_t::reset_eps_ms()
 vector<uint8_t> markov_chain_t::do_cftp()
 {
 	//step 1: run CFTP algo
+	//a flag to indicate the first entrance to the cycle
+	bool is_first_cycle = true;
 	while (!sequences_are_equal())
 	{
-		reset_sequence();
+		if (is_first_cycle)
+		{
+			is_first_cycle = false;
+			//in the first cycle nothing needs to be done
+		}
+		else
+		{
+			//in further cycles a sequence reset and random source update is needed
+			reset_sequence();
+			update_eps_ms();
+		}
+
 		evolve_mc();
-		update_eps_ms();
 	}
 
 	//step 2: store the results
@@ -180,6 +192,7 @@ int16_t markov_chain_t::sequence_distance() const
 		      h < sequences[0].cend() && l < sequences[1].cend(); // paranoid. may be optimized if necessary
 		h++, l++)
 		dist += *h - *l;
+
 	dist /= 2 * n;
 	return dist;
 }
