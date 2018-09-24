@@ -51,7 +51,7 @@ public:
 	dist_2018(const result_type _limit) :
 		limit(_limit),
 		s(2 * _limit - 1),
-		t( (static_cast<uint64_t>(~(s - 1))) % s ) //in this line (2^64 - s) is calculated as (~(s - 1))
+		t( (gen_output_mask + 1) % s ) //in this line (2^64 - s) is calculated as (~(s - 1))
 	{}
 
 	result_type operator()(const function<uint64_t()> &gen) const
@@ -62,7 +62,7 @@ public:
 		{
 			x = gen() & gen_output_mask; //get first 32 bits
 			m = x * s;
-			l = m >> gen_output_number_of_bits; //get a remainder of division by 2^32
+			l = m & gen_output_mask; //get a remainder of division by 2^32
 		}
 		int32_t almost_output = m >> output_number_of_bits; //get a quotient from division by 2^32
 		return almost_output - limit;
@@ -70,15 +70,13 @@ public:
 
 private:
 	// upper bound
-	result_type s;
+	const result_type s;
 	const uint32_t t;
 	const int64_t limit;
 	// assuming 64-bit generator
 	//mask to extract first 32 bits from generator output
 	static constexpr uint64_t gen_output_mask = numeric_limits<uint32_t>::max();
 	//number of bits to shift for division by 2^32
-	static constexpr uint8_t gen_output_number_of_bits = 8 * sizeof(uint64_t);
-	//number of bits in output for division  for division by 2^L
 	static constexpr uint8_t output_number_of_bits = 8 * sizeof(result_type);
 	//static constexpr uint64_t gen_max = numeric_limits<uint64_t>::max() >> (sizeof(limit) * 8);
 	// overflow if limit's type width is 64 bits
@@ -160,7 +158,7 @@ int main() {
 	}*/
 
 	static const int64_t test_count = 20;
-	static const int64_t repeat_count = 10;
+	static const int64_t repeat_count = 1000000;
 
 	pcg_extras::seed_seq_from<random_device> seed_source;
 	uniform_int_distribution<int64_t> dist(-limit, limit);
