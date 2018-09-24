@@ -15,6 +15,7 @@
 #include "markov_chain.h"
 
 static const int16_t n = 8;
+// should be less than 64-bit type due to dist_2018
 static const int16_t limit = 2048;
 
 using namespace std;
@@ -22,10 +23,60 @@ using namespace chrono;
 
 class genrand
 {
+public:
+	typedef int64_t result_type;
+	genrand() {
+		random_device rd;
+		init_genrand64(rd());
+	}
+
+	static constexpr result_type min() {
+		return static_cast<result_type>(0);
+	}
+
+	static constexpr result_type max() {
+		return static_cast<result_type>(18446744073709551615);
+	}
+
+	result_type operator()() {
+		return static_cast<result_type>(genrand64_int64());
+	}
 };
 
-tuple<int16_t, int16_t, int16_t, int16_t> generate_ref()
+class dist_2018
 {
+public:
+	typedef int16_t result_type;
+	dist_2018(const result_type _s) :
+		s(_s),
+		t((gen_max_power_2 - s) % s) {}
+
+	result_type operator()(const function<uint64_t()> &gen) const {
+		uint64_t x  = gen();
+		         x &= gen_max;
+		int64_t m = x * s;
+		int64_t l = m % gen_max_power_2;
+		if (l < s) {
+			while (l < t) {
+				x = gen();
+				m = x * s;
+				l = m % gen_max_power_2;
+			}
+		}
+		return m / gen_max_power_2;
+	}
+
+private:
+	// upper bound
+	result_type s;
+	const int64_t t;
+	// assuming 64-bit generator
+	static constexpr uint64_t gen_max = numeric_limits<uint64_t>::max() >> (sizeof(limit) * 8);
+	// overflow if limit's type width is 64 bits
+	static constexpr uint64_t gen_max_power_2 = gen_max + 1; 
+};
+
+tuple<int16_t, int16_t, int16_t, int16_t> generate_ref() {
 	uint64_t r = genrand64_int64();
 
 	return make_tuple(
@@ -37,16 +88,14 @@ tuple<int16_t, int16_t, int16_t, int16_t> generate_ref()
 }
 
 //correct realization
-int16_t generate()
-{
+int16_t generate() {
 	double r = genrand64_real2();//[0,1) range
 	int16_t r_i = static_cast<int16_t>((r * (2 * limit + 1)) + 0.5);
 	r_i -= limit;
 	return r_i;
 }
 
-void genrand_int_limit(vector<int16_t> &v)
-{
+void genrand_int_limit(vector<int16_t> &v) {
 	uint64_t r = genrand64_int64();
 
 	auto a1 = static_cast<int16_t>(r >> 48);
@@ -65,8 +114,7 @@ void genrand_int_limit(vector<int16_t> &v)
 }
 
 
-void pcg64_limit(vector<int16_t> &v, pcg64_oneseq_once_insecure &pcg)
-{
+void pcg64_limit(vector<int16_t> &v, pcg64_oneseq_once_insecure &pcg) {
 	uint64_t r = pcg();
 
 	auto a1 = static_cast<int16_t>(r >> 48);
@@ -84,8 +132,7 @@ void pcg64_limit(vector<int16_t> &v, pcg64_oneseq_once_insecure &pcg)
 		v.push_back(a4);
 }
 
-int main()
-{
+int main() {
 	random_device rd;
 	init_genrand64(rd());
 
@@ -186,6 +233,38 @@ int main()
 			genrand_int_limit(v);
 		while (v.size() < repeat_count)
 			genrand_int_limit(v);
+		auto end = system_clock::now();
+		auto elapsed = duration_cast<milliseconds>(end - start).count();
+		time_total += elapsed;
+		//cout << "Time elapsed: " << elapsed << " ms" << endl;
+	}
+	cout << "Average time: " << double(time_total) / test_count << " ms" << endl;
+	cout << endl;
+
+	cout << "genrand + stl distribution" << endl;
+	genrand g;
+	int16_t t4;
+	time_total = 0;
+	for (int j = 0; j < test_count; j++) {
+		auto start = system_clock::now();
+		for (int i = 0; i < repeat_count; i++)
+			t4 = dist(g);
+		auto end = system_clock::now();
+		auto elapsed = duration_cast<milliseconds>(end - start).count();
+		time_total += elapsed;
+		//cout << "Time elapsed: " << elapsed << " ms" << endl;
+	}
+	cout << "Average time: " << double(time_total) / test_count << " ms" << endl;
+	cout << endl;
+
+	cout << "stl mt + stl distribution" << endl;
+	mt19937_64 mt;
+	int16_t t5;
+	time_total = 0;
+	for (int j = 0; j < test_count; j++) {
+		auto start = system_clock::now();
+		for (int i = 0; i < repeat_count; i++)
+			t5 = dist(mt);
 		auto end = system_clock::now();
 		auto elapsed = duration_cast<milliseconds>(end - start).count();
 		time_total += elapsed;
