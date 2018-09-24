@@ -155,6 +155,9 @@
   <ItemGroup>
     <ClInclude Include="markov_chain.h" />
     <ClInclude Include="mt64.h" />
+    <ClInclude Include="pcg-cpp\pcg_extras.hpp" />
+    <ClInclude Include="pcg-cpp\pcg_random.hpp" />
+    <ClInclude Include="pcg-cpp\pcg_uint128.hpp" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>

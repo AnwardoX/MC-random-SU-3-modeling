@@ -24,6 +24,15 @@
     <ClInclude Include="markov_chain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pcg-cpp\pcg_extras.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pcg-cpp\pcg_random.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pcg-cpp\pcg_uint128.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
