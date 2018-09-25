@@ -15,11 +15,11 @@ private:
 	pcg64_oneseq_once_insecure pcg64;
 public:
 	//for arbitrary unifrom distribution
-	random_generator_t(output_T _lower_limit, output_T _upper_limit);
+	random_generator_t(const output_T _lower_limit, const output_T _upper_limit);
 	~random_generator_t();
 
 	//get a random number
-	output_T generate_random_number();
+	output_T operator()(void);
 };
 
 /*

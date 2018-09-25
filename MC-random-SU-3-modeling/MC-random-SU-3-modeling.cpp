@@ -9,7 +9,7 @@ using namespace chrono;
 int main()
 {
 
-	int16_t n = 100, tries = 10;
+	int16_t n = 10, tries = 10;
 	markov_chain_t chain(n);
 
 	vector<uint8_t> output;

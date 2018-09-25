@@ -4,7 +4,7 @@
 
 size_t markov_chain_t::expected_number_of_steps() const
 {
-	return 5 * n * n * n * log(n);
+	return static_cast<size_t>(5 * n * n * n * log(n + 1);
 }
 
 void markov_chain_t::init_eps_ms()
@@ -14,7 +14,7 @@ void markov_chain_t::init_eps_ms()
 	eps_ms.resize(eps_ms_size);
 
 	for (auto e = eps_ms.begin(); e < eps_ms.end(); ++e)
-		*e = generator.generate_random_number();
+		*e = generator();
 }
 
 void markov_chain_t::evolve_mc()
@@ -33,7 +33,7 @@ void markov_chain_t::update_eps_ms()
 	eps_ms.resize(2 * eps_ms_old_size);
 
 	for(auto e = eps_ms.begin() + eps_ms_old_size; e < eps_ms.end(); ++e)
-		*e = generator.generate_random_number();
+		*e = generator();
 }
 
 vector<uint8_t> markov_chain_t::do_cftp()
@@ -70,7 +70,7 @@ vector<uint8_t> markov_chain_t::do_cftp()
 
 markov_chain_t::markov_chain_t(const int16_t &_n) :
 	n(_n),
-	generatorS(1 - 2 * _n, 2 * _n - 2)
+	generator(1 - 2 * _n, 2 * _n - 2)
 {
 	if (_n < 1) 
 	{
@@ -155,7 +155,7 @@ int64_t markov_chain_t::get_last_evolution_length() const
 
 int16_t markov_chain_t::sequence_distance() const
 {
-	int64_t dist = 0;
+	int16_t dist = 0;
 	for (auto h = sequences[0].cbegin(), l = sequences[1].cbegin();
 		      h < sequences[0].cend() && l < sequences[1].cend(); // paranoid. may be optimized if necessary
 		h++, l++)
