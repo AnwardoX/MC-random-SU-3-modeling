@@ -1,6 +1,7 @@
 #include "pch.h"
-#include "markov_chain.h"
+
 #include <string>
+#include "markov_chain.h"
 
 size_t markov_chain_t::expected_number_of_steps() const
 {
@@ -19,7 +20,7 @@ void markov_chain_t::init_eps_ms()
 
 void markov_chain_t::evolve_mc()
 {
-	for (auto i = eps_ms.crbegin(); i < eps_ms.crend(); i++)
+	for (auto i = eps_ms.crbegin(); i < eps_ms.crend(); ++i)
 	{
 		do_mc_step(high, *i);
 		do_mc_step(low, *i);
@@ -101,7 +102,7 @@ markov_chain_t::markov_chain_t(const vector<uint8_t> &_init_seq_high, const vect
 	//test on the input validity
 	for (auto h = _init_seq_high.cbegin(), l = _init_seq_high.cbegin();
 		      h < _init_seq_low .cend() && l < _init_seq_low .cend(); // paranoid. may be optimized if necessary
-		      h++, l++)
+		      ++h, ++l)
 	{
 		//index string in case of error
 		string index_string = to_string(h - _init_seq_high.cbegin());
@@ -123,7 +124,7 @@ void markov_chain_t::reset_sequence()
 {
 	for (auto h = sequences[0].begin(), l = sequences[1].begin();
 		      h < sequences[0].end() && l < sequences[1].end(); // paranoid. may be optimized if necessary
-	          h++, l++)
+	          ++h, ++l)
 	{
 		if (h < sequences[0].begin() + n)
 		{
@@ -158,7 +159,7 @@ int16_t markov_chain_t::sequence_distance() const
 	int16_t dist = 0;
 	for (auto h = sequences[0].cbegin(), l = sequences[1].cbegin();
 		      h < sequences[0].cend() && l < sequences[1].cend(); // paranoid. may be optimized if necessary
-		h++, l++)
+		++h, ++l)
 		dist += *h - *l;
 
 	dist /= 2 * n;
@@ -169,7 +170,7 @@ bool markov_chain_t::sequences_are_equal() const
 {
 	for (auto h = sequences[0].cbegin(), l = sequences[1].cbegin();
 		      h < sequences[0].cend() && l < sequences[1].cend(); // paranoid. may be optimized if necessary
-		      h++, l++)
+		      ++h, ++l)
 	{
 		if (*h != *l)
 			return false;
