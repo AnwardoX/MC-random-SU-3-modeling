@@ -4,7 +4,7 @@
 
 size_t markov_chain_t::expected_number_of_steps() const
 {
-	return static_cast<size_t>(5 * n * n * n * log(n + 1);
+	return static_cast<size_t>(5 * n * n * n * log(n + 1));
 }
 
 void markov_chain_t::init_eps_ms()
