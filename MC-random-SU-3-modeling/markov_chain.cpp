@@ -70,7 +70,7 @@ vector<uint8_t> markov_chain_t::do_cftp()
 
 markov_chain_t::markov_chain_t(const int16_t &_n) :
 	n(_n),
-	generator(1 - 2 * _n, 2 * _n - 2)
+	generatorS(1 - 2 * _n, 2 * _n - 2)
 {
 	if (_n < 1) 
 	{

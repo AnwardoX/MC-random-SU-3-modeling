@@ -6,19 +6,20 @@
 
 using namespace std;
 
+template<typename output_T> 
 class random_generator_t
 {
 private:
-	const int16_t upper_limit, lower_limit;
-	uniform_int_distribution<int16_t> distribution;
+	const output_T upper_limit, lower_limit;
+	uniform_int_distribution<output_T> distribution;
 	pcg64_oneseq_once_insecure pcg64;
 public:
 	//for arbitrary unifrom distribution
-	random_generator_t(int16_t _lower_limit, int16_t _upper_limit);
+	random_generator_t(output_T _lower_limit, output_T _upper_limit);
 	~random_generator_t();
 
 	//get a random number
-	int16_t generate_random_number();
+	output_T generate_random_number();
 };
 
 /*
