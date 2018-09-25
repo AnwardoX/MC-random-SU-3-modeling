@@ -20,7 +20,7 @@ private:
 	};
 
 	//internal random generator; m \in [0,2 n - 2] => eps_m \in [-(2n - 2) - 1, 2n - 2];
-	random_generator_t<int16_t> generator;
+	random_generator_t generator;
 	//the internal random sequence
 	//storage for random vars
 	vector<int16_t> eps_ms;

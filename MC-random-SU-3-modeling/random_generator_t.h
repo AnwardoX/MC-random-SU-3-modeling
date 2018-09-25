@@ -6,9 +6,11 @@
 
 using namespace std;
 
-template<typename output_T> 
 class random_generator_t
 {
+public:
+	typedef int16_t output_T;
+
 private:
 	const output_T lower_limit, upper_limit;
 	uniform_int_distribution<output_T> distribution;
@@ -21,30 +23,6 @@ public:
 	//get a random number
 	output_T operator()();
 };
-
-template<typename output_T>
-random_generator_t<output_T>::random_generator_t(const output_T &_lower_limit, const output_T &_upper_limit) :
-	lower_limit(_lower_limit),
-	upper_limit(_upper_limit),
-	distribution(lower_limit, upper_limit) {
-	if (lower_limit >= upper_limit) {
-		throw("Lower limit is not less than upper limit");
-	}
-
-	if (   numeric_limits<output_T>::min() > lower_limit
-		|| numeric_limits<output_T>::max() < upper_limit) {
-		throw("Output type is not sufficient for specified interval");
-	}
-
-	pcg_extras::seed_seq_from<random_device> seed_source;
-	pcg64 = pcg64_oneseq_once_insecure(seed_source);
-}
-
-template<typename output_T>
-output_T random_generator_t<output_T>::operator()()
-{
-	return distribution(pcg64);
-}
 
 /*
 //Some quite interesting variants discovered:
