@@ -13,15 +13,8 @@ void markov_chain_t::init_eps_ms()
 	eps_ms_size -= eps_ms_size % 4; //to make the length a whole number of 4
 	eps_ms.resize(eps_ms_size);
 
-	for (auto e = eps_ms.begin(); e < eps_ms.end(); e += 4)
-	{
-		uint64_t r = genrand64_int64();
-
-		*e       = static_cast<int16_t>(r >> 48);
-		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535);
-		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535);
-		*(e + 3) = static_cast<int16_t>(r         & 65535);
-	}
+	for (auto e = eps_ms.begin(); e < eps_ms.end(); ++e)
+		*e = generator.generate_random_number();
 }
 
 void markov_chain_t::evolve_mc()
@@ -37,37 +30,10 @@ void markov_chain_t::update_eps_ms()
 {
 	//double the size
 	size_t eps_ms_old_size = eps_ms.size();
-	//no need to perform alignment up to 4
 	eps_ms.resize(2 * eps_ms_old_size);
 
-	for (auto e = eps_ms.begin() + eps_ms_old_size; e < eps_ms.end(); e += 4)
-	{
-		uint64_t r = genrand64_int64();
-
-		*e       = static_cast<int16_t>(r >> 48);
-		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535);
-		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535);
-		*(e + 3) = static_cast<int16_t>(r         & 65535);
-	}
-}
-
-void markov_chain_t::reset_eps_ms()
-{
-	//clear the memory
-	//set the size
-	//erase extra space
-	eps_ms.resize(expected_number_of_steps());
-
-	//refill the array
-	for (auto e = eps_ms.begin(); e < eps_ms.end(); e += 4)
-	{
-		uint64_t r = genrand64_int64();
-
-		*e       = static_cast<int16_t>(r >> 48);
-		*(e + 1) = static_cast<int16_t>((r >> 32) & 65535);
-		*(e + 2) = static_cast<int16_t>((r >> 16) & 65535);
-		*(e + 3) = static_cast<int16_t>(r &         65535);
-	}
+	for(auto e = eps_ms.begin() + eps_ms_old_size; e < eps_ms.end(); ++e)
+		*e = generator.generate_random_number();
 }
 
 vector<uint8_t> markov_chain_t::do_cftp()
@@ -98,12 +64,13 @@ vector<uint8_t> markov_chain_t::do_cftp()
 
 	//step 2: restore the init state
 	reset_sequence();
-	reset_eps_ms();
+	init_eps_ms();
 	return output_sequence;
 }
 
 markov_chain_t::markov_chain_t(const int16_t &_n) :
-	n(_n)
+	n(_n),
+	generator(1 - 2 * _n, 2 * _n - 2)
 {
 	if (_n < 1) 
 	{
@@ -118,7 +85,8 @@ markov_chain_t::markov_chain_t(const int16_t &_n) :
 }
 
 markov_chain_t::markov_chain_t(const vector<uint8_t> &_init_seq_high, const vector<uint8_t> &_init_seq_low) :
-	n(_init_seq_high.size() / 2)
+	n(_init_seq_high.size() / 2),
+	generator(1 - _init_seq_high.size(), _init_seq_high.size() - 2)
 {	
 	if (_init_seq_high.size() % 2 != 0)
 	{
@@ -223,11 +191,11 @@ void markov_chain_t::do_mc_step(const sequence_label_t &index, const int16_t &ep
 	}
 
 	if (   eps_m < 0
-		&& sequences[index][m    ] == 1
-		&& sequences[index][m + 1] == 0)
+		&& sequences[index][m - 1] == 1
+		&& sequences[index][m    ] == 0)
 	{
-		sequences[index][m    ] = 0;
-		sequences[index][m + 1] = 1;
+		sequences[index][m - 1] = 0;
+		sequences[index][m    ] = 1;
 	}
 }
 

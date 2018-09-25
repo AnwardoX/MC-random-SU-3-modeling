@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <cmath>
-#include "mt64.h"
+#include "random_generator_t.h"
 
 using namespace std;
 
@@ -18,19 +18,20 @@ private:
 		vector<uint8_t>(2 * n),
 		vector<uint8_t>(2 * n)
 	};
-	//random source
+
+	//internal random generator; m \in [0,2 n - 2] => eps_m \in [-(2n - 2) - 1, 2n - 2];
+	random_generator_t generator;
+	//the internal random sequence
 	//storage for random vars
 	vector<int16_t> eps_ms;
 	//storage of recent number of steps
 	int64_t last_evolution_length = 0;
 	//an empirical / theoretical estimate for the number of steps
 	size_t expected_number_of_steps() const;
-
+	//function for internal random source (re)init
 	void init_eps_ms();
 	//random source update
 	void update_eps_ms();
-	//random source reinit
-	void reset_eps_ms();
 	//function, that conducts the MC evolution
 	void evolve_mc();
 
