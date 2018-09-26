@@ -82,7 +82,7 @@ public:
 
 #ifdef DEBUG
 	//function for prtinting number to binary test file
-	void print_number_to_log(const int16_t &number);
+	void print_number_to_log(const int64_t &number);
 #endif // DEBUG
 };
 

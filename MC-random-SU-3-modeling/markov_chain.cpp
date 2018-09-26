@@ -221,7 +221,7 @@ void markov_chain_t::do_mc_step(const sequence_label_t &index, const int16_t &ep
 }
 
 #ifdef DEBUG
-void markov_chain_t::print_number_to_log(const int16_t &number)
+void markov_chain_t::print_number_to_log(const int64_t &number)
 {
 	log_file.write(reinterpret_cast<const char *>(&number), sizeof(number));// complete madness.
 }
