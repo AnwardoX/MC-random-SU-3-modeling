@@ -24,6 +24,16 @@ void markov_chain_t::evolve_mc()
 	{
 		do_mc_step(high, *i);
 		do_mc_step(low, *i);
+
+#ifdef DEBUG
+		//print the used random number
+		print_number_to_log(*i);
+		//print the current sequences
+		for(auto j = sequences[high].begin(); j < sequences[high].end(); ++j)
+			print_number_to_log(*j);
+		for (auto j = sequences[low].begin(); j < sequences[low].end(); ++j)
+			print_number_to_log(*j);
+#endif
 	}
 }
 
@@ -44,6 +54,10 @@ vector<uint8_t> markov_chain_t::do_cftp()
 	bool is_first_cycle = true;
 	while (!sequences_are_equal())
 	{
+#ifdef DEBUG
+		print_number_to_log(eps_ms.size());
+#endif // DEBUG
+
 		if (is_first_cycle)
 		{
 			is_first_cycle = false;
@@ -200,3 +214,9 @@ void markov_chain_t::do_mc_step(const sequence_label_t &index, const int16_t &ep
 	}
 }
 
+#ifdef DEBUG
+void markov_chain_t::print_number_to_log(int16_t number)
+{
+	log_file.write(number);
+}
+#endif

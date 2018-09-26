@@ -2,15 +2,28 @@
 
 #include <vector>
 #include <cmath>
+#include <fstream>
 #include "random_generator_t.h"
 
 using namespace std;
+
+#define DEBUG
+/*
+order of logging:
+- do_cftp outputs size of the array of random number before starting each cycle
+- mc_evolve output each random number and then both sequences (high, then low)
+*/
 
 enum sequence_label_t {high = 0, low = 1};
 
 class markov_chain_t
 {
 private:
+#ifdef DEBUG
+	//var for debug logging
+	ofstream log_file("log_file.txt", ios::out | ios::app | ios::binary);
+#endif
+
 	//stores the sequence length
 	const int16_t n;
 	//stores the 2 states
@@ -61,5 +74,10 @@ public:
 	//CFTP:
 	// generates a sample and resets the configurations
 	vector<uint8_t> do_cftp();
+
+#ifdef DEBUG
+	//function for prtinting number to binary test file
+	void print_number_to_log(int16_t number);
+#endif
 };
 
