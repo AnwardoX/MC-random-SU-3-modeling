@@ -223,6 +223,6 @@ void markov_chain_t::do_mc_step(const sequence_label_t &index, const int16_t &ep
 #ifdef DEBUG
 void markov_chain_t::print_number_to_log(int16_t number)
 {
-	log_file << bitset<16>(number);
+	log_file.write(reinterpret_cast<char *>(number), sizeof(number));// complete madness.
 }
 #endif // DEBUG
