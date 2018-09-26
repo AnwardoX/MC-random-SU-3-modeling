@@ -9,7 +9,8 @@ using namespace chrono;
 int main()
 {
 
-	int16_t n = 20, tries = 1;
+	/*
+	int16_t n = 10, tries = 1;
 	markov_chain_t chain(n);
 
 	vector<uint8_t> output;
@@ -27,6 +28,10 @@ int main()
 		cout << "}" << endl;
 	}
 	cout << "Average time: " << double(time) / tries << " ms" << endl;
+	*/
+	ofstream file = ofstream("test", ios::out | ios::app | ios::binary);
+	for (auto j = 0; j < 256; j++)
+		file << bitset<8>(j);
 
 	system("pause");
 	return 0;

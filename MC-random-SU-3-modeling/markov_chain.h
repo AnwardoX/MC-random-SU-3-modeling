@@ -1,12 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <cmath>
-#include <fstream>
-#include "random_generator_t.h"
-
-using namespace std;
-
 #define DEBUG
 /*
 order of logging:
@@ -15,6 +8,17 @@ order of logging:
 - when the configuration is ready, do_cftp outputs 0 instead of size of the array and the final config
 */
 
+#ifdef DEBUG
+#include <bitset>
+#endif
+
+#include <vector>
+#include <cmath>
+#include <fstream>
+#include "random_generator_t.h"
+
+using namespace std;
+
 enum sequence_label_t {high = 0, low = 1};
 
 class markov_chain_t
@@ -22,7 +26,7 @@ class markov_chain_t
 private:
 #ifdef DEBUG
 	//var for debug logging
-	ofstream log_file = ofstream("log_file.txt", ios::out | ios::app | ios::binary);
+	ofstream log_file = ofstream("log_file", ios::out | ios::app | ios::binary);
 #endif // DEBUG
 
 	//stores the sequence length
