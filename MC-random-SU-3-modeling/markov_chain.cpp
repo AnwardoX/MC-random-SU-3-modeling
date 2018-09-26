@@ -33,7 +33,7 @@ void markov_chain_t::evolve_mc()
 			print_number_to_log(*j);
 		for (auto j = sequences[low].begin(); j < sequences[low].end(); ++j)
 			print_number_to_log(*j);
-#endif
+#endif // DEBUG
 	}
 }
 
@@ -72,6 +72,12 @@ vector<uint8_t> markov_chain_t::do_cftp()
 
 		evolve_mc();
 	}
+	
+#ifdef DEBUG
+	print_number_to_log(0);
+	for (auto j = sequences[low].begin(); j < sequences[low].end(); ++j)
+		print_number_to_log(*j);
+#endif // DEBUG
 
 	//step 2: store the results
 	auto output_sequence = get_sequence(high);
@@ -219,4 +225,4 @@ void markov_chain_t::print_number_to_log(int16_t number)
 {
 	log_file.write(number);
 }
-#endif
+#endif // DEBUG

@@ -12,6 +12,7 @@ using namespace std;
 order of logging:
 - do_cftp outputs size of the array of random number before starting each cycle
 - mc_evolve output each random number and then both sequences (high, then low)
+- when the configuration is ready, do_cftp outputs 0 instead of size of the array and the final config
 */
 
 enum sequence_label_t {high = 0, low = 1};
@@ -22,7 +23,7 @@ private:
 #ifdef DEBUG
 	//var for debug logging
 	ofstream log_file("log_file.txt", ios::out | ios::app | ios::binary);
-#endif
+#endif // DEBUG
 
 	//stores the sequence length
 	const int16_t n;
@@ -78,6 +79,6 @@ public:
 #ifdef DEBUG
 	//function for prtinting number to binary test file
 	void print_number_to_log(int16_t number);
-#endif
+#endif // DEBUG
 };
 
