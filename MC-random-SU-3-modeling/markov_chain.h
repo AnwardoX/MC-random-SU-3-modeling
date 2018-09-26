@@ -22,7 +22,7 @@ class markov_chain_t
 private:
 #ifdef DEBUG
 	//var for debug logging
-	ofstream log_file("log_file.txt", ios::out | ios::app | ios::binary);
+	ofstream log_file = ofstream("log_file.txt", ios::out | ios::app | ios::binary);
 #endif // DEBUG
 
 	//stores the sequence length
