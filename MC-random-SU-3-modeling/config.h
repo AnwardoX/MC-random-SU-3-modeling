@@ -67,5 +67,5 @@ Example
 // YAML testing
 YAML::Node node;
 node = YAML::LoadFile("test.json");
-parameters_t test = node.as<config_t>();
+config_t test = node.as<config_t>();
 */

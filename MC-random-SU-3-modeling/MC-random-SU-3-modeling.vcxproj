@@ -164,6 +164,7 @@
     <ClInclude Include="pcg-cpp\pcg_uint128.hpp" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="random_generator_t.h" />
+    <ClInclude Include="task_manager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="markov_chain.cpp" />

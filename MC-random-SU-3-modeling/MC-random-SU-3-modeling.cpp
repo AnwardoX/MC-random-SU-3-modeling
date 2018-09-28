@@ -11,6 +11,10 @@ using namespace chrono;
 
 int main()
 {
+	YAML::Node node;
+	node = YAML::LoadFile("test.json");
+	config_t test = node.as<config_t>();
+
 	int16_t n = 20, tries = 1;
 	markov_chain_t chain(n);
 
