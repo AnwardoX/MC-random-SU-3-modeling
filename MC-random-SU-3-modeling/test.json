@@ -1,0 +1,6 @@
+{
+	"n": 16,
+	"repeats": 64,
+	"output_path": "output",
+	"log_path": "log.log"
+}

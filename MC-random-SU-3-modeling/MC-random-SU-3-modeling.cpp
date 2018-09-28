@@ -1,6 +1,9 @@
 #include "pch.h"
-#include <chrono>
 
+#include <chrono>
+#include "yaml-cpp/yaml.h"
+
+#include "config.h"
 #include "markov_chain.h"
 
 using namespace std;
