@@ -1,6 +1,6 @@
 {
-	"n": 16,
-	"repeats": 64,
-	"output_path": "output",
+	"n": 8,
+	"repeats": 3,
+	"output_path": "output.bin",
 	"log_path": "log.log"
 }

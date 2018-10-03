@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "markov_chain.h"
+#include "task_manager.h"
 
 using namespace std;
 using namespace chrono;
@@ -13,8 +14,14 @@ int main()
 {
 	YAML::Node node;
 	node = YAML::LoadFile("test.json");
-	config_t test = node.as<config_t>();
+	config_t test_config = node.as<config_t>();
 
+	vector<config_t> configs = { test_config };
+
+	task_manager_t tm(configs, chrono::milliseconds(500));
+	tm.run();
+
+	/*
 	int16_t n = 20, tries = 1;
 	markov_chain_t chain(n);
 
@@ -33,7 +40,7 @@ int main()
 		cout << "}" << endl;
 	}
 	cout << "Average time: " << double(time) / tries << " ms" << endl;
-	
+	*/
 
 	
 	/*
