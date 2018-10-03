@@ -14,11 +14,11 @@ int main()
 {
 	YAML::Node node;
 	node = YAML::LoadFile("test.json");
-	config_t test_config = node.as<config_t>();
+	auto test_config = node.as<vector<config_t>>();
 
-	vector<config_t> configs = { test_config };
+	//vector<config_t> configs = { test_config };
 
-	task_manager_t tm(configs, chrono::milliseconds(500));
+	task_manager_t tm(test_config, chrono::milliseconds(500));
 	tm.run();
 
 	/*
@@ -52,7 +52,6 @@ int main()
 	}
 	*/
 	
-
 	system("pause");
 	return 0;
 }

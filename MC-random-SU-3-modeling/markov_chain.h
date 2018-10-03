@@ -1,6 +1,6 @@
 #pragma once
 
-#define DEBUG
+//#define DEBUG
 /*
 order of logging:
 - do_cftp outputs size of the array of random number before starting each cycle

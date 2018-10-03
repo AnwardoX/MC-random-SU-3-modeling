@@ -16,12 +16,14 @@ public:
 
 	// destuctor and his company
 
-	/*task_t(const task_t &task);
+	task_t(const task_t &task);
 	task_t & operator=(const task_t &rhs);
-	~task_t();*/
+	task_t(task_t &&task);
+	task_t & operator=(task_t &&rhs);
+	~task_t();
 
 private:
-	const config_t input;
+	config_t input;
 	size_t repeats_left;
 	ofstream output_file;
 	ofstream log_file;
@@ -29,7 +31,7 @@ private:
 
 // initial implementation
 
-/*
+
 class task_manager_t
 {
 public:
@@ -42,8 +44,8 @@ private:
 	vector<task_t> available_tasks;
 	vector<pair<task_t, future<bool>>> active_tasks;
 };
-*/
 
+/*
 class task_manager_t
 {
 public:
@@ -56,3 +58,4 @@ private:
 	vector<config_t> available_tasks;
 	vector<future<void>> active_tasks;
 };
+*/
