@@ -12,7 +12,8 @@ using namespace chrono;
 
 int main(int argc, char *argv[])
 {
-	if (argc != 3) {
+	if (argc != 3) 
+	{
 		return -1;
 	}
 
@@ -23,7 +24,8 @@ int main(int argc, char *argv[])
 	node = YAML::LoadFile(config_path);
 	auto config = node.as<vector<config_t>>();
 
-	for (auto i = 0; i < 5; ++i) {
+	for (auto i = 0; i < 5; ++i) 
+	{
 		task_manager_t tm(config, poll_interval);
 		tm.run();
 	}
@@ -49,16 +51,7 @@ int main(int argc, char *argv[])
 	cout << "Average time: " << double(time) / tries << " ms" << endl;
 	*/
 
-	
-	/*
-
-	ofstream file = ofstream("test", ios::out | ios::app | ios::binary);
-	for (uint8_t j = 0; j < 255; j++)
-	{
-		file.write(reinterpret_cast<char *>(&j), sizeof(j));
-	}
-	*/
-	
+		
 	system("pause");
 	return 0;
 }

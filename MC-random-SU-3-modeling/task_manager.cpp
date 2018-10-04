@@ -42,22 +42,57 @@ task_t::~task_t() {
 	log_file.close();
 }
 
-bool task_t::invoke() {
+//all logics of simulation behaviour here
+bool task_t::invoke() 
+{
+	//output simulation parameters
 	log_file << "--------------------------------" << endl;
 	log_file << "task #" << index << " started" << endl;
 	log_file << "n: "       << input.n       << endl;
 	log_file << "repeats: " << input.repeats << endl;
 
+	//init statistics collection
+#ifdef COLLECT_METRICS
+#ifdef SINGLE_CYCLE_STATISTICS
+	int64_t total_time = 0;
+	int64_t total_iter = 0;
+	int64_t max_iter = 0;
+#else
 	auto start = chrono::system_clock::now();
+#endif
+#endif
 
-	for (; repeats_left > 0; repeats_left--) {
-		try {
-			markov_chain_t markov_chain(input.n);
+	markov_chain_t markov_chain(input.n);
+	for (; repeats_left > 0; repeats_left--) 
+	{
+		try 
+		{
+			//start measuring single iteration time, if it should be collected
+#ifdef COLLECT_METRICS
+#ifdef SINGLE_CYCLE_STATISTICS
+			auto start = chrono::system_clock::now();
+#endif
+#endif
+			//run the cycle
 			auto output = markov_chain.do_cftp();
-			for (size_t i = 0; i < output.size(); ++i) {
+			for (size_t i = 0; i < output.size(); ++i) 
+			{
 				output_file.write(reinterpret_cast<const char *>(&(output[i])), sizeof(output[i]));
 			}
-		} catch (exception &e) {
+
+			//measure single cycle time 
+#ifdef COLLECT_METRICS
+#ifdef SINGLE_CYCLE_STATISTICS
+			auto end = chrono::system_clock::now();
+			total_time += chrono::duration_cast<chrono::milliseconds>(end - start).count();
+			total_iter += markov_chain.get_last_evolution_length();
+			//usign stdlib define for max, as usual max cannot compare to uint64_t's
+			max_iter = max(max_iter, markov_chain.get_last_evolution_length());
+#endif
+#endif
+		} 
+		catch (exception &e) 
+		{
 			log_file << "Exception was thrown on " << input.n - repeats_left << "th repeat: " << endl;
 			log_file << e.what() << endl;
 			output_file.flush();
@@ -65,14 +100,32 @@ bool task_t::invoke() {
 		}
 	}
 
+	//if only cumulative measurements where specified -- measure the total time
+#ifdef COLLECT_METRICS
+#ifdef SINGLE_CYCLE_STATISTICS
+	//
+#else
 	auto end = chrono::system_clock::now();
+#endif
+#endif
 
 	output_file.flush();
 
 	log_file << "task #" << index << " finished successully" << endl;
 	log_file << endl;
-	log_file << "metrics:" << endl;
-	log_file << "time: " << chrono::duration_cast<chrono::milliseconds>((end - start)).count() << " ms" << endl;
+
+#ifdef COLLECT_METRICS
+#ifdef SINGLE_CYCLE_STATISTICS
+	log_file << "metrics (SINGLE_CYCLE_STATISTICS - yes)" << endl;
+	log_file << "total time: " << total_time << " ms" << endl;
+	log_file << "total titerations: " << total_iter << " ms" << endl;
+	log_file << "maximum number of iterations: " << max_iter << " ms" << endl;
+
+#else
+	log_file << "metrics (SINGLE_CYCLE_STATISTICS - no)" << endl;
+	log_file << "total time: " << chrono::duration_cast<chrono::milliseconds>((end - start)).count() << " ms" << endl;
+#endif
+#endif
 
 	return true;
 }
