@@ -1,7 +1,6 @@
 #include "pch.h"
 
 #include <chrono>
-//#include <windows.h>
 
 #include "task_manager.h"
 
@@ -12,9 +11,6 @@ task_t::task_t(const config_t &_input, const size_t &_index) :
 	output_file = ofstream(input.output_path, ios::out | ios::app | ios::binary);
 	log_file    = ofstream(input.   log_path, ios::out | ios::app);
 }
-
-// destructor and his company for initial implementation
-
 
 task_t::task_t(const task_t &task) :
 	index(task.index),
@@ -47,8 +43,13 @@ task_t::~task_t() {
 }
 
 bool task_t::invoke() {
+	log_file << "--------------------------------" << endl;
 	log_file << "task #" << index << " started" << endl;
-	log_file.flush();
+	log_file << "n: "       << input.n       << endl;
+	log_file << "repeats: " << input.repeats << endl;
+
+	auto start = chrono::system_clock::now();
+
 	for (; repeats_left > 0; repeats_left--) {
 		try {
 			markov_chain_t markov_chain(input.n);
@@ -57,15 +58,22 @@ bool task_t::invoke() {
 				output_file.write(reinterpret_cast<const char *>(&(output[i])), sizeof(output[i]));
 			}
 		} catch (exception &e) {
-			log_file << "Exception occured on " << input.n - repeats_left << "th repeat: " << endl;
+			log_file << "Exception was thrown on " << input.n - repeats_left << "th repeat: " << endl;
 			log_file << e.what() << endl;
 			output_file.flush();
 			return false;
 		}
 	}
 
+	auto end = chrono::system_clock::now();
+
 	output_file.flush();
-	log_file << "task #" << index << " finished" << endl;
+
+	log_file << "task #" << index << " finished successully" << endl;
+	log_file << endl;
+	log_file << "metrics:" << endl;
+	log_file << "time: " << chrono::duration_cast<chrono::milliseconds>((end - start)).count() << " ms" << endl;
+
 	return true;
 }
 
@@ -73,7 +81,7 @@ task_manager_t::task_manager_t(const vector<config_t> &configs, const chrono::mi
 	polling_interval(_poll_int) {
 	available_tasks.reserve(configs.size());
 	for (size_t i = 0; i < configs.size(); ++i) {
-		available_tasks.emplace_back(configs[i], i);
+		available_tasks.emplace_back(configs[configs.size() - 1 - i], i);
 	}
 
 	total_threads = thread::hardware_concurrency();

@@ -1,7 +1,7 @@
 [
 {
-	"n": 128,
-	"repeats": 4,
+	"n": 64,
+	"repeats": 100,
 	"output_path": "output.bin",
 	"log_path": "log.log"
 }

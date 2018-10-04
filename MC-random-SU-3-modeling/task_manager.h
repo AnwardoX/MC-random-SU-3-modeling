@@ -14,8 +14,6 @@ public:
 	bool invoke();
 	task_t(const config_t &input, const size_t &index);
 
-	// destuctor and his company
-
 	task_t(const task_t &task);
 	task_t & operator=(const task_t &rhs);
 	task_t(task_t &&task);
@@ -29,9 +27,6 @@ private:
 	ofstream log_file;
 };
 
-// initial implementation
-
-
 class task_manager_t
 {
 public:
@@ -44,18 +39,3 @@ private:
 	vector<task_t> available_tasks;
 	vector<pair<task_t, future<bool>>> active_tasks;
 };
-
-/*
-class task_manager_t
-{
-public:
-	task_manager_t(const vector<config_t> &configs, const chrono::milliseconds &_poll_int);
-	void run();
-
-private:
-	long total_threads;
-	const chrono::milliseconds polling_interval;
-	vector<config_t> available_tasks;
-	vector<future<void>> active_tasks;
-};
-*/

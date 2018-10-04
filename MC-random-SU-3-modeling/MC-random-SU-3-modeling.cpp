@@ -10,16 +10,23 @@
 using namespace std;
 using namespace chrono;
 
-int main()
+int main(int argc, char *argv[])
 {
+	if (argc != 3) {
+		return -1;
+	}
+
+	string config_path(argv[1]);
+	chrono::milliseconds poll_interval(stoi(argv[2]));
+
 	YAML::Node node;
-	node = YAML::LoadFile("test.json");
-	auto test_config = node.as<vector<config_t>>();
+	node = YAML::LoadFile(config_path);
+	auto config = node.as<vector<config_t>>();
 
-	//vector<config_t> configs = { test_config };
-
-	task_manager_t tm(test_config, chrono::milliseconds(500));
-	tm.run();
+	for (auto i = 0; i < 5; ++i) {
+		task_manager_t tm(config, poll_interval);
+		tm.run();
+	}
 
 	/*
 	int16_t n = 20, tries = 1;
