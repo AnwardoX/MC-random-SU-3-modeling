@@ -24,11 +24,8 @@ int main(int argc, char *argv[])
 	node = YAML::LoadFile(config_path);
 	auto config = node.as<vector<config_t>>();
 
-	for (auto i = 0; i < 5; ++i) 
-	{
-		task_manager_t tm(config, poll_interval);
-		tm.run();
-	}
+	task_manager_t tm(config, poll_interval);
+	tm.run();
 
 	/*
 	int16_t n = 20, tries = 1;

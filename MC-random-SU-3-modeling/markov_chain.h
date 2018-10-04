@@ -46,6 +46,8 @@ private:
 	int64_t last_evolution_length = 0;
 	//an empirical / theoretical estimate for the number of steps
 	size_t expected_number_of_steps() const;
+	//storage for the initial number of steps
+	const size_t initial_number_of_steps;
 	//function for internal random source (re)init
 	void init_eps_ms();
 	//random source update

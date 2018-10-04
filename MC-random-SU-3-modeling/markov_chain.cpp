@@ -10,9 +10,7 @@ size_t markov_chain_t::expected_number_of_steps() const
 
 void markov_chain_t::init_eps_ms()
 {
-	size_t eps_ms_size = expected_number_of_steps();
-	eps_ms_size -= eps_ms_size % 4; //to make the length a whole number of 4
-	eps_ms.resize(eps_ms_size);
+	eps_ms.resize(initial_number_of_steps);
 
 	for (auto e = eps_ms.begin(); e < eps_ms.end(); ++e)
 		*e = generator();
@@ -41,7 +39,13 @@ void markov_chain_t::update_eps_ms()
 {
 	//double the size
 	size_t eps_ms_old_size = eps_ms.size();
-	eps_ms.resize(2 * eps_ms_old_size);
+	eps_ms.resize(static_cast<size_t>(1.1 * eps_ms_old_size));
+	/*
+	variants for arg of resize
+	2 * eps_ms_old_size
+	static_cast<size_t>(1.1 * eps_ms_old_size)
+	static_cast<size_t>(1.1 * initial_number_of_steps)
+	*/
 
 	for(auto e = eps_ms.begin() + eps_ms_old_size; e < eps_ms.end(); ++e)
 		*e = generator();
@@ -91,7 +95,8 @@ vector<uint8_t> markov_chain_t::do_cftp()
 
 markov_chain_t::markov_chain_t(const int16_t &_n) :
 	n(_n),
-	generator(1 - 2 * _n, 2 * _n - 2)
+	generator(1 - 2 * _n, 2 * _n - 2),
+	initial_number_of_steps(expected_number_of_steps())
 {
 	if (_n < 1) 
 	{
@@ -107,7 +112,8 @@ markov_chain_t::markov_chain_t(const int16_t &_n) :
 
 markov_chain_t::markov_chain_t(const vector<uint8_t> &_init_seq_high, const vector<uint8_t> &_init_seq_low) :
 	n(_init_seq_high.size() / 2),
-	generator(1 - _init_seq_high.size(), _init_seq_high.size() - 2)
+	generator(1 - _init_seq_high.size(), _init_seq_high.size() - 2), 
+	initial_number_of_steps(expected_number_of_steps())
 {	
 	if (_init_seq_high.size() % 2 != 0)
 	{
