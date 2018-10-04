@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <chrono>
+#include <limits>
 
 #include "task_manager.h"
 
@@ -57,6 +58,7 @@ bool task_t::invoke()
 	int64_t total_time = 0;
 	int64_t total_iter = 0;
 	int64_t max_iter = 0;
+	int64_t min_iter = numeric_limits<int64_t>::max();
 #else
 	auto start = chrono::system_clock::now();
 #endif
@@ -86,8 +88,8 @@ bool task_t::invoke()
 			auto end = chrono::system_clock::now();
 			total_time += chrono::duration_cast<chrono::milliseconds>(end - start).count();
 			total_iter += markov_chain.get_last_evolution_length();
-			//usign stdlib define for max, as usual max cannot compare to uint64_t's
 			max_iter = max(max_iter, markov_chain.get_last_evolution_length());
+			min_iter = min(min_iter, markov_chain.get_last_evolution_length());
 #endif
 #endif
 		} 
@@ -118,8 +120,9 @@ bool task_t::invoke()
 #ifdef SINGLE_CYCLE_STATISTICS
 	log_file << "metrics (SINGLE_CYCLE_STATISTICS - yes)" << endl;
 	log_file << "total time: " << total_time << " ms" << endl;
-	log_file << "total titerations: " << total_iter << " ms" << endl;
-	log_file << "maximum number of iterations: " << max_iter << " ms" << endl;
+	log_file << "total iterations: " << total_iter << endl;
+	log_file << "maximum number of iterations: " << max_iter << endl;
+	log_file << "minimum number of iterations: " << min_iter << endl;
 
 #else
 	log_file << "metrics (SINGLE_CYCLE_STATISTICS - no)" << endl;
