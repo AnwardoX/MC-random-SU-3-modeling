@@ -24,6 +24,35 @@ int main(int argc, char *argv[])
 	node = YAML::LoadFile(config_path);
 	auto configs = node.as<vector<config_t>>();
 
+	// move assignment bug example code
+	// from now on, use step-by-step debug and pay attention to local watches
+
+	// task_t is a quite simple class, but it creates an ofstream in ctor (2 of them, actually)
+
+	// checking if compiler thinks that task_t is MoveAssignable
+	auto a = static_cast<bool>(is_move_assignable<task_t>());
+	
+	// creating new task_t object and trying to move it
+	task_t t(configs[0], 0);
+	auto t2 = move(t);
+	// success!
+
+	// creating vector of tasks from vector of configs
+	// second argument of ctor doesn't matter
+	vector<task_t> tasks;
+	for (size_t i = 0; i < configs.size(); ++i) {
+		tasks.emplace_back(configs[i], i);
+	}
+
+	// trying to erase first element
+	// actually, any element is fine except of the last
+	tasks.erase(tasks.begin());
+	// ...and for some reason it removes the last element
+
+	// https://stackoverflow.com/a/28599378 - operation principle of erase()
+
+	// example end
+
 	task_manager_t tm(configs, poll_interval);
 	tm.run();
 
