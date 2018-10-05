@@ -261,3 +261,5 @@ __pycache__/
 *.pyc
 /MC-random-SU-3-modeling/test
 /MC-random-SU-3-modeling/log_file
+
+*.bin
