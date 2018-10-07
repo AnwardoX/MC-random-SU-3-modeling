@@ -53,6 +53,8 @@ bool task_t::invoke()
 	log_file << "task #" << index << " started" << endl;
 	log_file << "n: "       << input.n       << endl;
 	log_file << "repeats: " << input.repeats << endl;
+	log_file << "output file: " << input.output_path << endl;
+	log_file << "estimated output size: " << input.n * 2 * input.repeats << " bytes" << endl;
 
 	//init statistics collection
 #ifdef COLLECT_METRICS
