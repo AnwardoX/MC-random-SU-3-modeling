@@ -5,10 +5,11 @@
 
 #include "task_manager.h"
 
-task_t::task_t(const config_t &_input, const size_t &_index) :
+task_t::task_t(const config_t &_input, const size_t &_index, const chrono::milliseconds &_bad_alloc_retry_interval) :
 	input(_input),
 	index(_index),
-	repeats_left(input.repeats) {
+	repeats_left(input.repeats),
+	bad_alloc_retry_interval(_bad_alloc_retry_interval) {
 	output_file = ofstream(input.output_path, ios::out | ios::app | ios::binary);
 	log_file    = ofstream(input.   log_path, ios::out | ios::app);
 }
@@ -69,10 +70,8 @@ bool task_t::invoke()
 #endif
 
 	markov_chain_t markov_chain(input.n);
-	for (; repeats_left > 0; repeats_left--) 
-	{
-		try 
-		{
+	for (; repeats_left > 0; repeats_left--) {
+		try {
 			//start measuring single iteration time, if it should be collected
 #ifdef COLLECT_METRICS
 #ifdef SINGLE_CYCLE_STATISTICS
@@ -81,8 +80,7 @@ bool task_t::invoke()
 #endif
 			//run the cycle
 			auto output = markov_chain.do_cftp();
-			for (size_t i = 0; i < output.size(); ++i) 
-			{
+			for (size_t i = 0; i < output.size(); ++i) {
 				output_file.write(reinterpret_cast<const char *>(&(output[i])), sizeof(output[i]));
 			}
 
@@ -96,12 +94,15 @@ bool task_t::invoke()
 			min_iter = min(min_iter, markov_chain.get_last_evolution_length());
 #endif
 #endif
-		} 
-		catch (exception &e) 
-		{
-			log_file << "Exception was thrown on " << input.n - repeats_left << "th repeat: " << endl;
+		} catch (bad_alloc const &) {
+			log_file << "Allocation exception was thrown on " << input.n - repeats_left << "th repeat: " << endl;
+			++repeats_left;
+			this_thread::sleep_for(bad_alloc_retry_interval);
+			continue;
+		} catch (exception const &e) {
+			log_file << "An exception was thrown on " << input.n - repeats_left << "th repeat: " << endl;
 			log_file << e.what() << endl;
-			output_file.flush();
+			//output_file.flush();
 			return false;
 		}
 	}
@@ -142,7 +143,8 @@ task_manager_t::task_manager_t(const vector<config_t> &configs, const chrono::mi
 	total_threads(_thread_count) {
 	available_tasks.reserve(configs.size());
 	for (size_t i = 0; i < configs.size(); ++i) {
-		available_tasks.emplace_back(configs[configs.size() - 1 - i], i);
+		// reuse polling interval as bad_alloc interval
+		available_tasks.emplace_back(configs[configs.size() - 1 - i], i, polling_interval);
 	}
 
 	if (total_threads == 0) {

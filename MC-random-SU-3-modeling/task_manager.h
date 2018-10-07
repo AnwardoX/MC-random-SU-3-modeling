@@ -18,7 +18,7 @@ class task_t
 public:
 	const size_t index;
 	bool invoke();
-	task_t(const config_t &input, const size_t &index);
+	task_t(const config_t &input, const size_t &index, const chrono::milliseconds &_bad_alloc_retry_interval);
 
 	task_t(const task_t &task);
 	task_t & operator=(const task_t &rhs);
@@ -31,6 +31,7 @@ private:
 	size_t repeats_left;
 	ofstream output_file;
 	ofstream log_file;
+	chrono::milliseconds bad_alloc_retry_interval;
 };
 
 class task_manager_t
