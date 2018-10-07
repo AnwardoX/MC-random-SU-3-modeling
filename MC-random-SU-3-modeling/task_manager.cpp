@@ -97,6 +97,8 @@ bool task_t::invoke()
 		} catch (bad_alloc const &) {
 			log_file << "Allocation exception was thrown on " << input.repeats - repeats_left << "th repeat" << endl;
 			++repeats_left;
+			// actually, do_cftp() repeats last evolve before trying to resize vector,
+			// so effectively any interval used here is increased by time for one evolve_mc().
 			this_thread::sleep_for(bad_alloc_retry_interval);
 			continue;
 		} catch (exception const &e) {
