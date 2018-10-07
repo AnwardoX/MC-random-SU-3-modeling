@@ -13,7 +13,7 @@ using namespace chrono;
 int main(int argc, char *argv[])
 {
 	if (   argc < 2
-		&& argc > 4) {
+		|| argc > 4) {
 		return -1;
 	}
 
