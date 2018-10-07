@@ -95,14 +95,14 @@ bool task_t::invoke()
 #endif
 #endif
 		} catch (bad_alloc const &) {
-			log_file << "Allocation exception was thrown on " << input.n - repeats_left << "th repeat: " << endl;
+			log_file << "Allocation exception was thrown on " << input.repeats - repeats_left << "th repeat" << endl;
 			++repeats_left;
 			this_thread::sleep_for(bad_alloc_retry_interval);
 			continue;
 		} catch (exception const &e) {
-			log_file << "An exception was thrown on " << input.n - repeats_left << "th repeat: " << endl;
+			log_file << "An exception was thrown on " << input.repeats - repeats_left << "th repeat: " << endl;
 			log_file << e.what() << endl;
-			//output_file.flush();
+			output_file.flush();
 			return false;
 		}
 	}
