@@ -145,8 +145,9 @@ task_manager_t::task_manager_t(const vector<config_t> &configs, const chrono::mi
 	total_threads(_thread_count) {
 	available_tasks.reserve(configs.size());
 	for (size_t i = 0; i < configs.size(); ++i) {
+		size_t index = configs.size() - 1 - i;
 		// reuse polling interval as bad_alloc interval
-		available_tasks.emplace_back(configs[configs.size() - 1 - i], i, polling_interval);
+		available_tasks.emplace_back(configs[index], index, polling_interval);
 	}
 
 	if (total_threads == 0) {
