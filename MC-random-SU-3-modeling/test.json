@@ -1,6 +1,6 @@
 [
   {
-    "n": 768,
+    "n": 128,
     "repeats": 1,
     "output_path": "output.bin",
     "log_path": "log_2.2.log"
