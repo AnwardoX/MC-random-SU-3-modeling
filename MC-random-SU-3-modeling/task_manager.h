@@ -1,7 +1,7 @@
 #pragma once
 
 //a flag for time and iterations metrics
-//#define COLLECT_METRICS
+#define COLLECT_METRICS
 //a flag for switching between mean value statistics and single iteration statistics
 //#define SINGLE_CYCLE_STATISTICS
 
@@ -36,7 +36,7 @@ private:
 class task_manager_t
 {
 public:
-	task_manager_t(const vector<config_t> &configs, const chrono::milliseconds &_poll_int);
+	task_manager_t(const vector<config_t> &configs, const chrono::milliseconds &_poll_int = chrono::milliseconds(500), const long &_thread_count = 0);
 	void run();
 
 private:

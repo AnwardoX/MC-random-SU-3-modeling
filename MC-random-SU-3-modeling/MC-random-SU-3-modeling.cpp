@@ -12,19 +12,23 @@ using namespace chrono;
 
 int main(int argc, char *argv[])
 {
-	if (argc != 3) 
-	{
+	if (   argc < 2
+		&& argc > 4) {
 		return -1;
 	}
 
 	string config_path(argv[1]);
-	chrono::milliseconds poll_interval(stoi(argv[2]));
+	long thread_count = thread::hardware_concurrency();
+	chrono::milliseconds poll_interval(500);
+
+	if (argc >= 3) thread_count = stoi(argv[2]);
+	if (argc >= 4) poll_interval = chrono::milliseconds(stoi(argv[3]));
 
 	YAML::Node node;
 	node = YAML::LoadFile(config_path);
 	auto configs = node.as<vector<config_t>>();
 
-	task_manager_t tm(configs, poll_interval);
+	task_manager_t tm(configs, poll_interval, thread_count);
 	tm.run();
 
 	/*
@@ -48,7 +52,6 @@ int main(int argc, char *argv[])
 	cout << "Average time: " << double(time) / tries << " ms" << endl;
 	*/
 
-		
-	system("pause");
+	//system("pause");
 	return 0;
 }

@@ -135,14 +135,17 @@ bool task_t::invoke()
 	return true;
 }
 
-task_manager_t::task_manager_t(const vector<config_t> &configs, const chrono::milliseconds &_poll_int) :
-	polling_interval(_poll_int) {
+task_manager_t::task_manager_t(const vector<config_t> &configs, const chrono::milliseconds &_poll_int, const long &_thread_count) :
+	polling_interval(_poll_int),
+	total_threads(_thread_count) {
 	available_tasks.reserve(configs.size());
 	for (size_t i = 0; i < configs.size(); ++i) {
 		available_tasks.emplace_back(configs[configs.size() - 1 - i], i);
 	}
 
-	total_threads = thread::hardware_concurrency();
+	if (total_threads == 0) {
+		total_threads = thread::hardware_concurrency();
+	}
 	active_tasks.reserve(total_threads);
 }
 
