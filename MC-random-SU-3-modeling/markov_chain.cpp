@@ -12,6 +12,7 @@ size_t markov_chain_t::expected_number_of_steps() const
 void markov_chain_t::init_eps_ms()
 {
 	eps_ms.resize(initial_number_of_steps);
+	eps_ms.shrink_to_fit();
 
 	for (auto e = eps_ms.begin(); e < eps_ms.end(); ++e)
 		*e = generator();
