@@ -22,8 +22,8 @@ public:
 
 	task_t(const task_t &task);
 	task_t & operator=(const task_t &rhs);
-	task_t(task_t &&task);
-	task_t & operator=(task_t &&rhs);
+	task_t(task_t &&task) = default;
+	task_t & operator=(task_t &&rhs) = default;
 	~task_t();
 
 private:

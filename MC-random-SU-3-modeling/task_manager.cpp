@@ -26,6 +26,7 @@ task_t & task_t::operator=(const task_t &rhs) {
 	return t;
 }
 
+/*
 task_t::task_t(task_t && task) :
 	index(task.index),
 	input(task.input),
@@ -37,6 +38,7 @@ task_t & task_t::operator=(task_t && rhs) {
 	task_t t(rhs);
 	return t;
 }
+*/
 
 task_t::~task_t() {
 	output_file.close();

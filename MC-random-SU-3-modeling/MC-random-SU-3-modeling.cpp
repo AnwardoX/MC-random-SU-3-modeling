@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
 
 	YAML::Node node;
 	node = YAML::LoadFile(config_path);
-	auto config = node.as<vector<config_t>>();
+	auto configs = node.as<vector<config_t>>();
 
-	task_manager_t tm(config, poll_interval);
+	task_manager_t tm(configs, poll_interval);
 	tm.run();
 
 	/*
