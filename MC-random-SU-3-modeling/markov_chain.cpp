@@ -5,7 +5,7 @@
 
 size_t markov_chain_t::expected_number_of_steps() const
 {
-	return static_cast<size_t>(1.9 * n * n * n * log(n + 1));
+	return static_cast<size_t>(2.2 * n * n * n * log(n + 1));
 	// constant multiplyer can be tweaked to various value
 }
 
