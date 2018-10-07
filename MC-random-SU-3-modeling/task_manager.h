@@ -1,9 +1,9 @@
 #pragma once
 
 //a flag for time and iterations metrics
-#define COLLECT_METRICS
+//#define COLLECT_METRICS
 //a flag for switching between mean value statistics and single iteration statistics
-#define SINGLE_CYCLE_STATISTICS
+//#define SINGLE_CYCLE_STATISTICS
 
 
 #include <chrono>

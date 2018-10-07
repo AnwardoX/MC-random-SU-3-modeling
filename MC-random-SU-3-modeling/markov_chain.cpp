@@ -5,7 +5,7 @@
 
 size_t markov_chain_t::expected_number_of_steps() const
 {
-	return static_cast<size_t>(5 * n * n * n * log(n + 1));
+	return static_cast<size_t>(1.9 * n * n * n * log(n + 1));
 	// constant multiplyer can be tweaked to various value
 }
 
@@ -40,7 +40,7 @@ void markov_chain_t::update_eps_ms()
 {
 	//double the size
 	size_t eps_ms_old_size = eps_ms.size();
-	eps_ms.resize(eps_ms_old_size + eps_ms_old_size);
+	eps_ms.resize(eps_ms_old_size + initial_number_of_steps);
 	/*
 	variants for arg of resize
 	1. ... + eps_ms_old_size

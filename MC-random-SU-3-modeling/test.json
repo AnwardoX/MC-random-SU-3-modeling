@@ -1,20 +1,8 @@
 [
   {
     "n": 128,
-    "repeats": 50,
-    "output_path": "output_1.bin",
-    "log_path": "log_v2_1.log"
-  },
-  {
-    "n": 128,
-    "repeats": 50,
+    "repeats": 100,
     "output_path": "output_2.bin",
-    "log_path": "log_v2_2.log"
-  },
-  {
-    "n": 128,
-    "repeats": 50,
-    "output_path": "output_3.bin",
-    "log_path": "log_v2_3.log"
+    "log_path": "log_2.log"
   }
 ]
