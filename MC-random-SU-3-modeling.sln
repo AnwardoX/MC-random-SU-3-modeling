@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MC-random-SU-3-modeling", "MC-random-SU-3-modeling\MC-random-SU-3-modeling.vcxproj", "{47DD0BFE-4A1A-4055-BF4A-0AA1FA8BD269}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mc-random-su-3-modeling", "MC-random-SU-3-modeling\MC-random-SU-3-modeling.vcxproj", "{47DD0BFE-4A1A-4055-BF4A-0AA1FA8BD269}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
