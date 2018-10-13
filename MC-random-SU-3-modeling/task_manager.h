@@ -16,21 +16,13 @@
 class task_t
 {
 public:
-	const size_t index;
+	size_t index;
 	bool invoke();
 	task_t(const config_t &input, const size_t &index, const chrono::milliseconds &_bad_alloc_retry_interval);
 
-	task_t(const task_t &task);
-	task_t & operator=(const task_t &rhs);
-	task_t(task_t &&task) = default;
-	task_t & operator=(task_t &&rhs) = default;
-	~task_t();
-
 private:
 	config_t input;
-	size_t repeats_left;
-	ofstream output_file;
-	ofstream log_file;
+	int64_t repeats_left;
 	chrono::milliseconds bad_alloc_retry_interval;
 };
 
@@ -44,5 +36,5 @@ private:
 	long total_threads;
 	const chrono::milliseconds polling_interval;
 	vector<task_t> available_tasks;
-	vector<pair<task_t, future<bool>>> active_tasks;
+	vector<future<bool>> active_tasks;
 };

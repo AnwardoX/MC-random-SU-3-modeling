@@ -9,46 +9,13 @@ task_t::task_t(const config_t &_input, const size_t &_index, const chrono::milli
 	input(_input),
 	index(_index),
 	repeats_left(input.repeats),
-	bad_alloc_retry_interval(_bad_alloc_retry_interval) {
-	output_file = ofstream(input.output_path, ios::out | ios::app | ios::binary);
-	log_file    = ofstream(input.   log_path, ios::out | ios::app);
-}
-
-task_t::task_t(const task_t &task) :
-	index(task.index),
-	input(task.input),
-	repeats_left(task.repeats_left) {
-	output_file = ofstream(input.output_path, ios::out | ios::app | ios::binary);
-	log_file    = ofstream(input.   log_path, ios::out | ios::app);
-}
-
-task_t & task_t::operator=(const task_t &rhs) {
-	task_t t(rhs);
-	return t;
-}
-
-/*
-task_t::task_t(task_t && task) :
-	index(task.index),
-	input(task.input),
-	repeats_left(task.repeats_left),
-	output_file(move(task.output_file)),
-	log_file(move(task.log_file)) {}
-
-task_t & task_t::operator=(task_t && rhs) {
-	task_t t(rhs);
-	return t;
-}
-*/
-
-task_t::~task_t() {
-	output_file.close();
-	log_file.close();
-}
+	bad_alloc_retry_interval(_bad_alloc_retry_interval) {}
 
 //all logics of simulation behaviour here
 bool task_t::invoke() 
 {
+	ofstream log_file = ofstream(input.log_path, ios::out | ios::app);
+
 	//output simulation parameters
 	log_file << "--------------------------------" << endl;
 	log_file << "task #" << index << " started" << endl;
@@ -70,7 +37,7 @@ bool task_t::invoke()
 #endif
 
 	markov_chain_t markov_chain(input.n);
-	for (; repeats_left > 0; repeats_left--) {
+	for (; repeats_left > 0; --repeats_left) {
 		try {
 			//start measuring single iteration time, if it should be collected
 #ifdef COLLECT_METRICS
@@ -80,9 +47,12 @@ bool task_t::invoke()
 #endif
 			//run the cycle
 			auto output = markov_chain.do_cftp();
+
+			ofstream output_file = ofstream(input.output_path, ios::out | ios::app | ios::binary);
 			for (size_t i = 0; i < output.size(); ++i) {
 				output_file.write(reinterpret_cast<const char *>(&(output[i])), sizeof(output[i]));
 			}
+			output_file.close();
 
 			//measure single cycle time 
 #ifdef COLLECT_METRICS
@@ -98,13 +68,15 @@ bool task_t::invoke()
 			log_file << "Allocation exception was thrown on " << input.repeats - repeats_left << "th repeat" << endl;
 			++repeats_left;
 			// actually, do_cftp() repeats last evolve before trying to resize vector,
-			// so effectively any interval used here is increased by time for one evolve_mc().
+			// so effectively any interval used here is increased by time of one evolve_mc().
 			this_thread::sleep_for(bad_alloc_retry_interval);
 			continue;
 		} catch (exception const &e) {
 			log_file << "An exception was thrown on " << input.repeats - repeats_left << "th repeat: " << endl;
 			log_file << e.what() << endl;
-			output_file.flush();
+
+			log_file.close();
+
 			return false;
 		}
 	}
@@ -117,8 +89,6 @@ bool task_t::invoke()
 	auto end = chrono::system_clock::now();
 #endif
 #endif
-
-	output_file.flush();
 
 	log_file << "task #" << index << " finished successully" << endl;
 	log_file << endl;
@@ -137,6 +107,8 @@ bool task_t::invoke()
 #endif
 #endif
 
+	log_file.close();
+
 	return true;
 }
 
@@ -145,7 +117,7 @@ task_manager_t::task_manager_t(const vector<config_t> &configs, const chrono::mi
 	total_threads(_thread_count) {
 	available_tasks.reserve(configs.size());
 	for (size_t i = 0; i < configs.size(); ++i) {
-		size_t index = configs.size() - 1 - i;
+		size_t index = i;
 		// reuse polling interval as bad_alloc interval
 		available_tasks.emplace_back(configs[index], index, polling_interval);
 	}
@@ -159,28 +131,25 @@ task_manager_t::task_manager_t(const vector<config_t> &configs, const chrono::mi
 void task_manager_t::run() {
 	while (available_tasks.size() > 0) {
 		for (auto it = active_tasks.begin(); it != active_tasks.end(); ++it) {
-			if (it->second.wait_for(polling_interval) == future_status::ready) {
-				if (it->second.get() == true) {
-					active_tasks.erase(it);
-					break;
-				} else {
-					available_tasks.push_back(move(it->first));
-					break;
+			if (it->wait_for(polling_interval) == future_status::ready) {
+				if (it->get() == false) {
+					cout << "One of the tasks failed" << endl;
 				}
+				active_tasks.erase(it);
+				break;
 			}
 		}
 
 		if (active_tasks.size() < total_threads) {
-			active_tasks.emplace_back(move(*available_tasks.rbegin()), move(future<bool>()));
-			auto future = async(launch::async, [&] { return active_tasks.rbegin()->first.invoke(); });
-			active_tasks.rbegin()->second = move(future);
+			auto future = async(launch::async, [task = move(*available_tasks.begin())]() mutable { return task.invoke(); });
+			active_tasks.push_back(move(future));
 
-			available_tasks.erase(available_tasks.end() - 1);
+			available_tasks.erase(available_tasks.begin());
 			continue;
 		}
 	}
 
 	for (auto& task : active_tasks) {
-		task.second.wait();
+		task.wait();
 	}
 }

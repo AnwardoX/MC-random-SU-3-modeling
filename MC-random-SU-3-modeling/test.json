@@ -1,110 +1,110 @@
 [
 	{
-		"n":16,
+		"n":64,
+		"repeats":10,
+		"output_path":"output_test_part_0.bin",
+		"log_path":"log_file_test_part_0.txt"
+	},
+	{
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_1.bin",
 		"log_path":"log_file_test_part_1.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_2.bin",
 		"log_path":"log_file_test_part_2.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_3.bin",
 		"log_path":"log_file_test_part_3.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_4.bin",
 		"log_path":"log_file_test_part_4.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_5.bin",
 		"log_path":"log_file_test_part_5.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_6.bin",
 		"log_path":"log_file_test_part_6.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_7.bin",
 		"log_path":"log_file_test_part_7.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_8.bin",
 		"log_path":"log_file_test_part_8.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_9.bin",
 		"log_path":"log_file_test_part_9.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_10.bin",
 		"log_path":"log_file_test_part_10.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_11.bin",
 		"log_path":"log_file_test_part_11.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_12.bin",
 		"log_path":"log_file_test_part_12.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_13.bin",
 		"log_path":"log_file_test_part_13.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_14.bin",
 		"log_path":"log_file_test_part_14.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_15.bin",
 		"log_path":"log_file_test_part_15.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_16.bin",
 		"log_path":"log_file_test_part_16.txt"
 	},
 	{
-		"n":16,
+		"n":64,
 		"repeats":10,
 		"output_path":"output_test_part_17.bin",
 		"log_path":"log_file_test_part_17.txt"
-	},
-	{
-		"n":16,
-		"repeats":10,
-		"output_path":"output_test_part_18.bin",
-		"log_path":"log_file_test_part_18.txt"
 	}
 ]
