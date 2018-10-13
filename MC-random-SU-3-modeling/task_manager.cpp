@@ -128,27 +128,47 @@ task_manager_t::task_manager_t(const vector<config_t> &configs, const chrono::mi
 	active_tasks.reserve(total_threads);
 }
 
-void task_manager_t::run() {
-	while (available_tasks.size() > 0) {
-		for (auto it = active_tasks.begin(); it != active_tasks.end(); ++it) {
-			if (it->wait_for(polling_interval) == future_status::ready) {
+void task_manager_t::run()
+{
+	//cycling while there're tasks left to evaluate
+	while (available_tasks.size() > 0)
+	{
+		//cycling over currently active takss
+		for (auto it = active_tasks.begin(); it != active_tasks.end(); ++it) 
+		{
+			//check, if the task is finished
+			if (it->wait_for(polling_interval) == future_status::ready) 
+			{
+				//if the taks is finished with some unexpected exception -- log it somewhere
 				if (it->get() == false) {
 					cout << "One of the tasks failed" << endl;
 				}
+				//regardless of the results, mark the task as finished -> delete it from the evaluation list
 				active_tasks.erase(it);
+				//break form the active task cycle, since the iterators are not valid any more
 				break;
 			}
 		}
 
-		if (active_tasks.size() < total_threads) {
+		//after completing or breaking the acitve task cycle:
+		//try to add more tasks in case some tasks have already finished
+		if (active_tasks.size() < total_threads)
+		{
+			//"cut" the first of element of the available_task list
+			//and put inside of temporal epxresion, that is going to be evaluated (move)
 			auto future = async(launch::async, [task = move(*available_tasks.begin())]() mutable { return task.invoke(); });
+			//move the future to the list of active tasks
 			active_tasks.push_back(move(future));
 
+			//(do not forget to) erase the entity with undefined value 
+			//that left form move operation as a piece of memory
 			available_tasks.erase(available_tasks.begin());
 			continue;
 		}
 	}
 
+	//when we have launched all the tasks
+	//we synchronously wait till the end of the evaluation
 	for (auto& task : active_tasks) {
 		task.wait();
 	}
