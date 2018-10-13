@@ -136,7 +136,7 @@ void task_manager_t::run()
 		//cycling over currently active takss
 		for (auto it = active_tasks.begin(); it != active_tasks.end(); ++it) 
 		{
-			//check, if the task is finished
+			//check, if the task is finished; use polling interval so that thread wasn't asked to frequently
 			if (it->wait_for(polling_interval) == future_status::ready) 
 			{
 				//if the taks is finished with some unexpected exception -- log it somewhere
@@ -163,6 +163,7 @@ void task_manager_t::run()
 			//(do not forget to) erase the entity with undefined value 
 			//that left form move operation as a piece of memory
 			available_tasks.erase(available_tasks.begin());
+			//just in case when the erased task was the last one
 			continue;
 		}
 	}
